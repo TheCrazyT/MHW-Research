@@ -1,0 +1,94 @@
+//------------------------------------------------
+//--- 010 Editor v8.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: *.mrl3
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct Header{
+    long id<format=hex>;
+    byte unkn1[0x0C];
+    uint materialCount;
+    uint textureCount;
+    uint unknS2Count;
+    uint unkn2[0x3];
+};
+struct Texture{
+    uint unkn1<format=hex>;
+    byte unkn2[12];
+    char path[256];
+};
+struct Material{
+    uint headId<format=hex>;
+    ubyte unkn1;
+    ubyte unkn2;
+    ubyte unkn3[2];
+    uint64 skinid<format=hex>;
+    uint matSize;
+    byte unkn4[12];
+    ubyte unkn5;
+    ubyte unkn6[15];
+    uint startAddr<format=hex>;
+    uint unkn7;
+};
+struct UnknS2_1{
+    ubyte unkn1;
+    short x;
+    ubyte unkn2;
+    ubyte unkn3;
+    short y;
+    uint texIdx;
+    uint unkn5;
+};
+struct UnknS2_2{
+    ubyte unkn1;
+    short x;
+    ubyte unkn2;
+    ubyte unkn3;
+    short y;
+    uint unkn4;
+    uint unkn5;
+};
+struct UnknS2{
+    ubyte type;
+    if(type != 0){
+        UnknS2_1 sub  <size=15>;
+    }else{
+        UnknS2_2 sub  <size=15>;
+    }
+    
+};
+struct UnknS3{
+    float x;
+    float y;
+    
+};
+struct MaterialA(int count){
+    Material material[count];
+};
+struct UnknS2A(int count){
+    UnknS2 unknS[count];
+};
+struct UnknS3A(int count){
+    UnknS3 unknS[count];
+};
+string ReadTexture(Texture& t){
+    return t.path;
+}
+
+Header head;
+Texture textures[head.textureCount]<read=ReadTexture>;
+local uint i;
+//for(i=0;i<head.textureCount;i++){
+    MaterialA material(head.materialCount);
+    for(i=0;i<head.materialCount;i++){
+        FSeek(material.material[i].startAddr);
+        UnknS2A unknS2(head.unknS2Count/2);
+    }
+    //UnknS3A unknS3(head.unknS2Count/2);
+//}
