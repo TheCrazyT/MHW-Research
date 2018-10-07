@@ -10,6 +10,10 @@
 //  ID Bytes: 
 //   History: 
 //------------------------------------------------
+const int WEIGHT_MULTIPLIER = 0.000977517;
+const int WEIGHT_MULTIPLIER2 = 0.25;
+struct MODVertexBufferf637401c;
+struct Bone;
 struct Vector3{
     float x;
     float y;
@@ -80,6 +84,40 @@ struct Face{
     short v2;
     short v3;
 };
+string readMODVertexBufferf637401c(MODVertexBufferf637401c& v){
+    string s;
+    SPrintf( s, "weight:%f %f %f %f", v.weight1,v.weight2, v.weight3,v.weight4  );
+    return s;
+
+}
+struct MODVertexes81f58067{
+    float x;
+    float y;
+    float z;
+    ubyte u1;
+    ubyte u2;
+    ubyte u3;
+    ubyte u4;
+    long u5;
+    short u6;
+    short u7;
+    long weight;
+    local float weight1 = (weight & 0x3ff)*WEIGHT_MULTIPLIER;
+    local float weight2 = ((weight>>10) & 0x3ff)*WEIGHT_MULTIPLIER;
+    local float weight3 = ((weight>>20) & 0x3ff)*WEIGHT_MULTIPLIER;
+    local float weight4 = 1-weight3-weight2-weight1;
+    byte weight2_0;
+    byte weight2_1;
+    byte weight2_2;
+    byte weight2_3;
+    local float weight5 = weight2_0*WEIGHT_MULTIPLIER2;
+    local float weight6 = weight2_1*WEIGHT_MULTIPLIER2;
+    local float weight7 = weight2_2*WEIGHT_MULTIPLIER2;
+    local float weight8 = weight2_3*WEIGHT_MULTIPLIER2;
+
+
+    ubyte bones[8];
+};
 struct MODVertexBufferf637401c{
     float x;
     float y;
@@ -91,13 +129,14 @@ struct MODVertexBufferf637401c{
     long u5;
     short u6;
     short u7;
-    long u8;
+    long weight;
+    local float weight1 = (weight & 0x3ff)*WEIGHT_MULTIPLIER;
+    local float weight2 = ((weight>>10) & 0x3ff)*WEIGHT_MULTIPLIER;
+    local float weight3 = ((weight>>20) & 0x3ff)*WEIGHT_MULTIPLIER;
+    local float weight4 = 1-weight3-weight2-weight1;
 
 
-    ubyte u9;
-    ubyte u10;
-    ubyte u11;
-    ubyte u12;
+    ubyte bones[4];
 };
 struct MODVertexBuffer3c730760{
     float x;
@@ -124,26 +163,49 @@ struct Faces (int i){
     local int meshPartIdx = i;
     Face faces[meshPart[i].FaceCount/3];
 };
+struct Vertexes81f58067(int i){
+    local int meshPartIdx = i;
+    MODVertexes81f58067 vertexes[meshPart[i].VertexCount]<optimize=false>;
+};
 struct Vertexes3c730760 (int i){
     local int meshPartIdx = i;
     MODVertexBuffer3c730760 vertexes[meshPart[i].VertexCount];
 };
 struct Vertexesf637401c(int i){
     local int meshPartIdx = i;
-    MODVertexBufferf637401c vertexes[meshPart[i].VertexCount];
+    MODVertexBufferf637401c vertexes[meshPart[i].VertexCount]<optimize=false,read=readMODVertexBufferf637401c>;
 };
+
+string readMeshPart(MeshPartV3 &v){
+    string s;
+    SPrintf( s, "lod:%05d materialIdx:%03d unkn:%03d unkn7[1]:%03d", (int)v.lod,v.materialIdx,v.unkn,v.unkn7[1] );
+    return s;
+}
+string readBone(Bone &b){
+    string s;
+    SPrintf( s, "parentId:%d", (int)b.parentId);
+    return s;
+}
+
 Header head;
 FSeek(head.meshOffset);
  local int BOFF = 0;
 if(head.version==237){
-    MeshPartV3 meshPart[head.meshCount];
+    MeshPartV3 meshPart[head.meshCount]<read=readMeshPart>;
     local int i=0;
+    local int unknBlockType = 0;
     for(i=0;i<head.meshCount;i++){
         if(meshPart[i].blocktype==0xf637401c){
             if(meshPart[i].VertexCount>0){
                 BOFF=meshPart[i].VertexSub+meshPart[i].vertexBase;
                 FSeek(head.VertexOffset+meshPart[i].VertexOffset+meshPart[i].blockSize*BOFF);
                 Vertexesf637401c vertexes(i);
+            }
+        }else if(meshPart[i].blocktype==0x81f58067){
+            if(meshPart[i].VertexCount>0){
+                BOFF=meshPart[i].VertexSub+meshPart[i].vertexBase;
+                FSeek(head.VertexOffset+meshPart[i].VertexOffset+meshPart[i].blockSize*BOFF);
+                Vertexes81f58067 vertexes(i);
             }
         }else if(meshPart[i].blocktype==0x3c730760){
             if(meshPart[i].VertexCount>0){
@@ -152,7 +214,7 @@ if(head.version==237){
                 Vertexes3c730760 vertexes(i);
             }
         }else{
-            local int unknBlockType = i;
+            unknBlockType = i;
         }
     }
     for(i=0;i<head.meshCount;i++){
@@ -162,3 +224,18 @@ if(head.version==237){
         }
     }
 }
+FSeek(head.boneOffset);
+struct Bone{
+    short unkn1;
+    ubyte parentId;
+    ubyte child;
+    char unkn2[20];
+}bone[head.boneCount]<read=readBone>;
+struct LMatrix{
+    struct C{
+        float r1;
+        float r2;
+        float r3;
+        float r4;
+    }c[4];
+}lmatrices[head.boneCount];

@@ -10,13 +10,26 @@
 //  ID Bytes: 
 //   History: 
 //------------------------------------------------
+struct UnknS2;
+struct UnknS2{
+    ubyte unkn;
+    ubyte unkn1;
+    short x;
+    ubyte unkn2;
+    ubyte unkn3;
+    short y;
+    uint texIdx;
+    uint unkn5;
+};
+
+
 struct Header{
     long id<format=hex>;
     byte unkn1[0x0C];
     uint materialCount;
     uint textureCount;
-    uint unknS2Count;
-    uint unkn2[0x3];
+    uint64 textureOffset<format=hex>;
+    uint64 materialOffset<format=hex>;
 };
 struct Texture{
     uint unkn1<format=hex>;
@@ -36,15 +49,13 @@ struct Material{
     uint startAddr<format=hex>;
     uint unkn7;
 };
-struct UnknS2_1{
-    ubyte unkn1;
-    short x;
-    ubyte unkn2;
-    ubyte unkn3;
-    short y;
-    uint texIdx;
-    uint unkn5;
-};
+
+string ReadMaterial(Material& v){
+    string s;
+    SPrintf( s, "%08x%08x",v.skinid>>32,v.skinid);
+    return s;
+}
+
 struct UnknS2_2{
     ubyte unkn1;
     short x;
@@ -54,25 +65,16 @@ struct UnknS2_2{
     uint unkn4;
     uint unkn5;
 };
-struct UnknS2{
-    ubyte type;
-    if(type != 0){
-        UnknS2_1 sub  <size=15>;
-    }else{
-        UnknS2_2 sub  <size=15>;
-    }
-    
-};
 struct UnknS3{
     float x;
     float y;
     
 };
 struct MaterialA(int count){
-    Material material[count];
+    Material material[count]<read=ReadMaterial>;
 };
 struct UnknS2A(int count){
-    UnknS2 unknS[count];
+    UnknS2 unknS[count]<optimize=false,read=readUnknS2>;
 };
 struct UnknS3A(int count){
     UnknS3 unknS[count];
@@ -81,14 +83,27 @@ string ReadTexture(Texture& t){
     return t.path;
 }
 
+
+
 Header head;
 Texture textures[head.textureCount]<read=ReadTexture>;
+
+string readUnknS2(UnknS2 &v){
+    string s;
+    string t = "";
+    if(v.texIdx<head.textureCount){
+        t += textures[v.texIdx].path;
+    }
+    SPrintf( s, "%08x # %03d # %04d # %s",v.x,v.unkn,v.texIdx,t);
+    return s;
+}
+
 local uint i;
 //for(i=0;i<head.textureCount;i++){
     MaterialA material(head.materialCount);
     for(i=0;i<head.materialCount;i++){
         FSeek(material.material[i].startAddr);
-        UnknS2A unknS2(head.unknS2Count/2);
+        UnknS2A unknS2(material.material[i].matSize/(sizeof(UnknS2)));
     }
     //UnknS3A unknS3(head.unknS2Count/2);
 //}
