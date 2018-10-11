@@ -18,6 +18,7 @@ struct UnknS2{
     ubyte unkn2;
     ubyte unkn3;
     short y;
+    //not so shure if this is correct
     uint texIdx;
     uint unkn5;
 };
@@ -58,12 +59,14 @@ string ReadMaterial(Material& v){
 
 struct UnknS2_2{
     ubyte unkn1;
-    short x;
     ubyte unkn2;
     ubyte unkn3;
-    short y;
-    uint unkn4;
-    uint unkn5;
+    ubyte unkn4;
+    ubyte unkn5;
+    ubyte unkn6;
+    ubyte unkn7;
+    uint unkn8;
+    uint unkn9;
 };
 struct UnknS3{
     float x;
@@ -85,8 +88,8 @@ string ReadTexture(Texture& t){
 
 
 
-Header head;
-Texture textures[head.textureCount]<read=ReadTexture>;
+Header head<bgcolor=0x0000ff>;
+Texture textures[head.textureCount]<read=ReadTexture,bgcolor=0xff0000>;
 
 string readUnknS2(UnknS2 &v){
     string s;
@@ -100,10 +103,10 @@ string readUnknS2(UnknS2 &v){
 
 local uint i;
 //for(i=0;i<head.textureCount;i++){
-    MaterialA material(head.materialCount);
+    MaterialA material(head.materialCount)<bgcolor=0xffff00>;
     for(i=0;i<head.materialCount;i++){
         FSeek(material.material[i].startAddr);
-        UnknS2A unknS2(material.material[i].matSize/(sizeof(UnknS2)));
+        UnknS2A unknS2(material.material[i].matSize/(sizeof(UnknS2)))<bgcolor=0x00ffff>;
     }
     //UnknS3A unknS3(head.unknS2Count/2);
 //}
