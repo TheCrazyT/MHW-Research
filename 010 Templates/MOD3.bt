@@ -32,7 +32,7 @@ struct Header{
     long vertexBufferSize;
     long secondBufferSize;
     if(version<190){
-        long textureCount;
+        long unknCount;
     }
     uint64 groupCount;
     if((version<190)||(version>220)){
@@ -40,7 +40,7 @@ struct Header{
     }
     uint64 boneOffset<format=hex>;
     uint64 groupOffset<format=hex>;
-    uint64 textureOffset<format=hex>;
+    uint64 materialNamesOffset<format=hex>;
     uint64 meshOffset<format=hex>;
     uint64 VertexOffset<format=hex>;
     if(version<190){
@@ -62,8 +62,8 @@ struct Header{
 struct MeshPartV3{
     short unkn;
     short VertexCount;
-    short materialIdx;
     short unkn;
+    short materialIdx;
     long lod;
     short unkn2;
     byte blockSize;
@@ -178,7 +178,11 @@ struct Vertexesf637401c(int i){
 
 string readMeshPart(MeshPartV3 &v){
     string s;
-    SPrintf( s, "lod:%05d materialIdx:%03d unkn:%03d unkn7[1]:%03d", (int)v.lod,v.materialIdx,v.unkn,v.unkn7[1] );
+    string mn = "";
+    if(v.materialIdx<head.materialCount){
+        mn = materialNames[v.materialIdx].name;
+    }
+    SPrintf( s, "lod:%05d materialIdx:%03d [%s] unkn:%03d unkn7[1]:%03d", (int)v.lod,v.materialIdx,mn,v.unkn,v.unkn7[1] );
     return s;
 }
 string readBone(Bone &b){
@@ -188,6 +192,12 @@ string readBone(Bone &b){
 }
 
 Header head<bgcolor=0x00ff00>;
+
+FSeek(head.materialNamesOffset);
+struct MaterialName{
+    char name[128];
+}materialNames[head.materialCount]<optimize=false,bgcolor=0xcc00cc>;
+
 FSeek(head.meshOffset);
  local int BOFF = 0;
 if(head.version==237){
@@ -239,3 +249,11 @@ struct LMatrix{
         float r4;
     }c[4];
 }lmatrices[head.boneCount]<bgcolor=0x660033>;
+struct AMatrix{
+    struct D{
+        float r1;
+        float r2;
+        float r3;
+        float r4;
+    }c[4];
+}amatrices[head.boneCount]<bgcolor=0x663333>;
