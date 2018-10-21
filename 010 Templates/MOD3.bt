@@ -10,10 +10,12 @@
 //  ID Bytes: 
 //   History: 
 //------------------------------------------------
-const int WEIGHT_MULTIPLIER = 0.000977517;
-const int WEIGHT_MULTIPLIER2 = 0.25;
+const float WEIGHT_MULTIPLIER = 0.000977517;
+const float WEIGHT_MULTIPLIER2 = 0.25;
 struct MODVertexBufferf637401c;
 struct Bone;
+struct LMatrix;
+struct AMatrix;
 struct Vector3{
     float x;
     float y;
@@ -69,9 +71,9 @@ struct MeshPartV3{
     byte blockSize;
     byte unkn3;
     long VertexSub;
-    long VertexOffset;
+    long VertexOffset <format=hex>;
     long blocktype <format=hex>;
-    long FaceOffset;
+    long FaceOffset <format=hex>;
     long FaceCount;
     long vertexBase;
     ubyte bonremapid;
@@ -94,9 +96,9 @@ struct MODVertexes81f58067{
     float x;
     float y;
     float z;
-    ubyte u1;
-    ubyte u2;
-    ubyte u3;
+    byte u1;
+    byte u2;
+    byte u3;
     ubyte u4;
     long u5;
     short u6;
@@ -110,10 +112,10 @@ struct MODVertexes81f58067{
     byte weight2_1;
     byte weight2_2;
     byte weight2_3;
-    local float weight5 = weight2_0*WEIGHT_MULTIPLIER2;
-    local float weight6 = weight2_1*WEIGHT_MULTIPLIER2;
-    local float weight7 = weight2_2*WEIGHT_MULTIPLIER2;
-    local float weight8 = weight2_3*WEIGHT_MULTIPLIER2;
+    local float weight5 = ((float)weight2_0)*WEIGHT_MULTIPLIER2;
+    local float weight6 = ((float)weight2_1)*WEIGHT_MULTIPLIER2;
+    local float weight7 = ((float)weight2_2)*WEIGHT_MULTIPLIER2;
+    local float weight8 = ((float)weight2_3)*WEIGHT_MULTIPLIER2;
 
 
     ubyte bones[8];
@@ -122,9 +124,9 @@ struct MODVertexBufferf637401c{
     float x;
     float y;
     float z;
-    ubyte u1;
-    ubyte u2;
-    ubyte u3;
+    byte u1;
+    byte u2;
+    byte u3;
     ubyte u4;
     long u5;
     short u6;
@@ -142,9 +144,9 @@ struct MODVertexBuffer3c730760{
     float x;
     float y;
     float z;
-    ubyte u1;
-    ubyte u2;
-    ubyte u3;
+    byte u1;
+    byte u2;
+    byte u3;
     ubyte u4;
     long u5;
     short u6;
@@ -161,7 +163,7 @@ struct MODVertexBuffer3c730760{
 };
 struct Faces (int i){
     local int meshPartIdx = i;
-    Face faces[meshPart[i].FaceCount/3];
+    Face faces[meshPart[i].FaceCount/3]<read=readFace>;
 };
 struct Vertexes81f58067(int i){
     local int meshPartIdx = i;
@@ -175,7 +177,11 @@ struct Vertexesf637401c(int i){
     local int meshPartIdx = i;
     MODVertexBufferf637401c vertexes[meshPart[i].VertexCount]<optimize=false,read=readMODVertexBufferf637401c>;
 };
-
+string readFace(Face &v){
+    string s;
+    SPrintf( s, "%d %d %d", v.v1,v.v2,v.v3 );
+    return s;
+}
 string readMeshPart(MeshPartV3 &v){
     string s;
     string mn = "";
@@ -188,6 +194,24 @@ string readMeshPart(MeshPartV3 &v){
 string readBone(Bone &b){
     string s;
     SPrintf( s, "parentId:%d", (int)b.parentId);
+    return s;
+}
+string readLMatrix(LMatrix &v){
+    string s;
+    SPrintf( s, "%f %f %f %f|%f %f %f %f|%f %f %f %f|%f %f %f %f",
+     v.c[0].r1,v.c[0].r2,v.c[0].r3,v.c[0].r4,
+     v.c[1].r1,v.c[1].r2,v.c[1].r3,v.c[1].r4,
+     v.c[2].r1,v.c[2].r2,v.c[2].r3,v.c[2].r4,
+     v.c[3].r1,v.c[3].r2,v.c[3].r3,v.c[3].r4);
+    return s;
+}
+string readAMatrix(AMatrix &v){
+    string s;
+    SPrintf( s, "%f %f %f %f|%f %f %f %f|%f %f %f %f|%f %f %f %f",
+     v.c[0].r1,v.c[0].r2,v.c[0].r3,v.c[0].r4,
+     v.c[1].r1,v.c[1].r2,v.c[1].r3,v.c[1].r4,
+     v.c[2].r1,v.c[2].r2,v.c[2].r3,v.c[2].r4,
+     v.c[3].r1,v.c[3].r2,v.c[3].r3,v.c[3].r4);
     return s;
 }
 
@@ -248,7 +272,7 @@ struct LMatrix{
         float r3;
         float r4;
     }c[4];
-}lmatrices[head.boneCount]<bgcolor=0x660033>;
+}lmatrices[head.boneCount]<bgcolor=0x660033,read=readLMatrix>;
 struct AMatrix{
     struct D{
         float r1;
@@ -256,4 +280,4 @@ struct AMatrix{
         float r3;
         float r4;
     }c[4];
-}amatrices[head.boneCount]<bgcolor=0x663333>;
+}amatrices[head.boneCount]<bgcolor=0x663333,read=readAMatrix>;
