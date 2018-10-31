@@ -14,10 +14,9 @@ struct UnknS2;
 struct UnknS2{
     ubyte unkn;
     ubyte unkn1;
-    short x;
     ubyte unkn2;
     ubyte unkn3;
-    short y;
+    uint32 x;
     //not so shure if this is correct
     uint texIdx;
     uint unkn5;
@@ -96,10 +95,10 @@ Texture textures[head.textureCount]<read=ReadTexture,bgcolor=0xff0000>;
 string readUnknS2(UnknS2 &v){
     string s;
     string t = "";
-    if(v.texIdx<head.textureCount){
-        t += textures[v.texIdx].path;
+    if(v.texIdx-1<head.textureCount){
+        t += textures[v.texIdx-1].path;
     }
-    SPrintf( s, "%08x # %03d # %04d # %s",v.x,v.unkn,v.texIdx,t);
+    SPrintf( s, "%08x # %04d # %s",v.x,v.texIdx,t);
     return s;
 }
 
