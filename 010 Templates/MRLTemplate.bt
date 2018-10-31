@@ -44,11 +44,13 @@ struct Material{
     ubyte unkn3[2];
     uint64 skinid<format=hex>;
     uint matSize;
-    byte unkn4[12];
-    ubyte unkn5;
-    ubyte unkn6[15];
+	short unkn4;
+	byte floatArrOff;
+    byte unkn5[9];
+    ubyte unkn6;
+    ubyte unkn7[15];
     uint startAddr<format=hex>;
-    uint unkn7;
+    uint unkn8;
 };
 
 string ReadMaterial(Material& v){
@@ -106,7 +108,10 @@ local uint i;
     MaterialA material(head.materialCount)<bgcolor=0xffff00>;
     for(i=0;i<head.materialCount;i++){
         FSeek(material.material[i].startAddr);
-        UnknS2A unknS2(material.material[i].matSize/(sizeof(UnknS2)))<bgcolor=0x00ffff>;
+        UnknS2A unknS2((material.material[i].floatArrOff*8)/(sizeof(UnknS2)))<bgcolor=0x00ffff>;
+		struct FloatArr{
+			float floatVal[(material.material[i].matSize-material.material[i].floatArrOff*8)/4]<bgcolor=0x00ffaa>;
+		}floatArr;
     }
     //UnknS3A unknS3(head.unknS2Count/2);
 //}
