@@ -60,6 +60,8 @@ struct Header{
         long unkn;
         
     }
+    float unkn1[38];
+    byte unkn2[64];
 };
 struct MeshPartV3{
     short unkn;
@@ -263,7 +265,7 @@ struct Bone{
     short unkn1;
     ubyte parentId;
     ubyte child;
-    char unkn2[20];
+    float unkn2[5];
 }bone[head.boneCount]<read=readBone,bgcolor=0x330066>;
 struct LMatrix{
     struct C{
@@ -281,3 +283,6 @@ struct AMatrix{
         float r4;
     }c[4];
 }amatrices[head.boneCount]<bgcolor=0x663333,read=readAMatrix>;
+byte unknBoneStuff[512]<bgcolor=0xAA3333>;
+FSeek(head.groupOffset);
+float unknGroupStuff[head.groupCount*8]<bgcolor=0xAAAA33>;
