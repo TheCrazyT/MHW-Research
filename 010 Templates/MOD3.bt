@@ -181,7 +181,9 @@ struct Vertexesf637401c(int i){
 };
 struct UnknMeshStuff{
     uint count;
-    float unkn[count*36];
+    struct UnknMeshStuffSubStruct{
+        float unkn[36];
+    } unknMeshStuffSubStruct[count];
 };
 string readFace(Face &v){
     string s;
