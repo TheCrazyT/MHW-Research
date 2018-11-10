@@ -90,7 +90,7 @@ struct Face{
 };
 string readMODVertexBufferf637401c(MODVertexBufferf637401c& v){
     string s;
-    SPrintf( s, "weight:%f %f %f %f", v.weight1,v.weight2, v.weight3,v.weight4  );
+    SPrintf( s, "weight:%f %f %f %f u5:%hu u6:%hu", v.weight1,v.weight2, v.weight3,v.weight4,v.u5,v.u6  );
     return s;
 
 }
@@ -98,13 +98,14 @@ struct MODVertexes81f58067{
     float x;
     float y;
     float z;
-    byte u1;
-    byte u2;
-    byte u3;
+    byte normalX;
+    byte normalY;
+    byte normalZ;
     ubyte u4;
-    long u5;
+    short u5;
     short u6;
-    short u7;
+    short uvX;
+    short uvY;
     long weight;
     local float weight1 = (weight & 0x3ff)*WEIGHT_MULTIPLIER;
     local float weight2 = ((weight>>10) & 0x3ff)*WEIGHT_MULTIPLIER;
@@ -126,13 +127,14 @@ struct MODVertexBufferf637401c{
     float x;
     float y;
     float z;
-    byte u1;
-    byte u2;
-    byte u3;
+    byte normalX;
+    byte normalY;
+    byte normalZ;
     ubyte u4;
-    long u5;
+    short u5;
     short u6;
-    short u7;
+    short uvX;
+    short uvY;
     long weight;
     local float weight1 = (weight & 0x3ff)*WEIGHT_MULTIPLIER;
     local float weight2 = ((weight>>10) & 0x3ff)*WEIGHT_MULTIPLIER;
@@ -146,13 +148,14 @@ struct MODVertexBuffer3c730760{
     float x;
     float y;
     float z;
-    byte u1;
-    byte u2;
-    byte u3;
+    byte normalX;
+    byte normalY;
+    byte normalZ;
     ubyte u4;
-    long u5;
+    short u5;
     short u6;
-    short u7;
+    short uvX;
+    short uvY;
     long u8;
 
 
