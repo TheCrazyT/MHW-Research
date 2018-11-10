@@ -179,6 +179,10 @@ struct Vertexesf637401c(int i){
     local int meshPartIdx = i;
     MODVertexBufferf637401c vertexes[meshPart[i].VertexCount]<optimize=false,read=readMODVertexBufferf637401c>;
 };
+struct UnknMeshStuff{
+    uint count;
+    float unkn[count*36];
+};
 string readFace(Face &v){
     string s;
     SPrintf( s, "%d %d %d", v.v1,v.v2,v.v3 );
@@ -228,6 +232,9 @@ FSeek(head.meshOffset);
  local int BOFF = 0;
 if(head.version==237){
     MeshPartV3 meshPart[head.meshCount]<read=readMeshPart,bgcolor=0xff0000>;
+    UnknMeshStuff unknMeshStuff<bgcolor=0xaa0000>;
+    //float unknMeshStuff[2556]<bgcolor=0xaa0000>; //two010
+    //float unknMeshStuff[216]<bgcolor=0xaa0000>;  //stm730_000_03
     local int i=0;
     local int unknBlockType = 0;
     for(i=0;i<head.meshCount;i++){
@@ -260,6 +267,7 @@ if(head.version==237){
         }
     }
 }
+if(head.boneCount>0){
 FSeek(head.boneOffset);
 struct Bone{
     short unkn1;
@@ -284,5 +292,6 @@ struct AMatrix{
     }c[4];
 }amatrices[head.boneCount]<bgcolor=0x663333,read=readAMatrix>;
 byte unknBoneStuff[512]<bgcolor=0xAA3333>;
+}
 FSeek(head.groupOffset);
 float unknGroupStuff[head.groupCount*8]<bgcolor=0xAAAA33>;
