@@ -37,8 +37,8 @@ string readBlock(Block &b){
 }
 string readUnkn4(uint64 unkn4){
     string s;
-    if(unkn4!=0)
-        SPrintf( s, "%s", ReadString(unkn4+propNameOffset) );
+    if((unkn4!=0)&&(unkn4!=0xFFFFFFFF))
+        SPrintf( s, "[%016lx] %s", unkn4+propNameOffset,ReadString(unkn4+propNameOffset) );
     return s;
 }
 FSeek(blockStart);
@@ -58,5 +58,10 @@ struct Material{
     uint32 partSkinID<format=hex>;
     short unkn1;
     short unkn2;
-    uint32 unkn3[6]<format=hex,read=readUnkn4>;
+    uint32 unkn3<format=hex>;
+    short unkn4;
+    short unkn5;
+    uint32 unkn6;
+    uint32 name<read=readUnkn4>;
+    uint32 unkn7[2]<format=hex>;
 } material[50000];
