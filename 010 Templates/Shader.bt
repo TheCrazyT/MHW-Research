@@ -1,10 +1,11 @@
 //--------------------------------------
 //--- 010 Editor v6.0.1 Binary Template
 //
-// File:
-// Author:
+// File: 
+// Author: CrazyT
 // Revision:
 // Purpose:
+// File Mask: *.sdf
 //--------------------------------------
 //Currently only ShaderPackageIntel.sdf
 
@@ -16,8 +17,8 @@ string readBlock(MeshBlock &b);
 //4E 6F 72 6D 61 6C 00 54 61 6E 67 65 6E 74 00 55 56 5F 50 72 69 6D 61 72 79 00 55 56 5F 53 65 63 6F 6E 64 61 72 79 00 57 65 69 67 68 74 00 57 65 69 67 68 74 00 4A 6F 69 6E 74 00 4A 6F 69 6E 74 00 43 6F 6C 6F 72 00 50 6F 73 69 74 69 6F 6e 50 46 00 49 41 53 6b 69 6e 38 77 74 32 55 56 00 50 6f 73 69 74 69 6f 6e 00
 //=0xaae2d85
 //-0x6f6c85 (next val of blocktype 0x81F58067 in ShaderPackageIntel.sdf) = 0xA3EC100
-local uint32 propNameOffset = 0xA3EC100;
-local uint32 blockStart = 0x9bf9618;
+//local uint32 propNameOffset = 0xA3EC100;
+//local uint32 blockStart = 0x9bf9618;
 //local uint32 materialStart = 0x4510c;
 
 struct BlockRef{
@@ -31,12 +32,12 @@ struct Property{
     uint64 stringPointer<format=hex>;
     uint64 unkn<format=hex>;
     local uint64 realStringPointer<format=hex>;
-    realStringPointer=stringPointer+propNameOffset;
+    realStringPointer=stringPointer+head.propNameOffset;
 };
 string readUnkn4(uint64 unkn4){
     string s ="";
     if((unkn4!=0)&&(unkn4!=0xFFFFFFFF)){
-        SPrintf( s, "[%016lx] %s", unkn4+propNameOffset,ReadString(unkn4+propNameOffset) );
+        SPrintf( s, "[%016lx] %s", unkn4+head.propNameOffset,ReadString(unkn4+head.propNameOffset) );
     }
     return s;
 }
@@ -47,7 +48,7 @@ string readMaterial(Material &m){
 }
 string readProp(Property &p){
     string s;
-    SPrintf( s, "%s(%016lx)", ReadString(p.stringPointer+propNameOffset),p.unkn );
+    SPrintf( s, "%s(%016lx)", ReadString(p.stringPointer+head.propNameOffset),p.unkn );
     return s;
 }
 
@@ -67,9 +68,11 @@ struct Head{
     uint32 unkn2[2]<format=hex>;
     uint32 blockCount;
     uint32 unkn3[7]<format=hex>;
-    uint32 materialOffset<format=hex>;
-    uint32 unkn4[3]<format=hex>;
-    uint32 blockOffset<format=hex>;
+    uint64 materialOffset<format=hex>;
+    uint64 unkn4<format=hex>;
+    uint64 blockOffset<format=hex>;
+    uint64 unkn5[4]<format=hex>;
+    uint64 propNameOffset<format=hex>;
 }head;
 FSeek(head.blockOffset);
 struct BlockHead{
