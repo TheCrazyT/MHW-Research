@@ -13,6 +13,7 @@
 const float WEIGHT_MULTIPLIER = 0.000977517;
 const float WEIGHT_MULTIPLIER2 = 0.25;
 struct MODVertexBufferf637401c;
+struct MODVertexes81f58067;
 struct Bone;
 struct LMatrix;
 struct AMatrix;
@@ -94,6 +95,12 @@ string readMODVertexBufferf637401c(MODVertexBufferf637401c& v){
     return s;
 
 }
+string readMODVertexes81f58067(MODVertexes81f58067& v){
+    string s;
+    SPrintf( s, "weight:%f %f %f %f u5:%hu u6:%hu", v.weight1,v.weight2, v.weight3,v.weight4,v.u5,v.u6  );
+    return s;
+}
+
 struct MODVertexes81f58067{
     float x;
     float y;
@@ -102,10 +109,10 @@ struct MODVertexes81f58067{
     byte normalY;
     byte normalZ;
     ubyte u4;
-    short u5;
-    short u6;
-    short uvX;
-    short uvY;
+    ushort u5;
+    ushort u6;
+    hfloat uvX;
+    hfloat uvY;
     long weight;
     local float weight1 = (weight & 0x3ff)*WEIGHT_MULTIPLIER;
     local float weight2 = ((weight>>10) & 0x3ff)*WEIGHT_MULTIPLIER;
@@ -131,10 +138,10 @@ struct MODVertexBufferf637401c{
     byte normalY;
     byte normalZ;
     ubyte u4;
-    short u5;
-    short u6;
-    short uvX;
-    short uvY;
+    ushort u5;
+    ushort u6;
+    hfloat uvX;
+    hfloat uvY;
     long weight;
     local float weight1 = (weight & 0x3ff)*WEIGHT_MULTIPLIER;
     local float weight2 = ((weight>>10) & 0x3ff)*WEIGHT_MULTIPLIER;
@@ -152,10 +159,10 @@ struct MODVertexBuffer3c730760{
     byte normalY;
     byte normalZ;
     ubyte u4;
-    short u5;
-    short u6;
-    short uvX;
-    short uvY;
+    ushort u5;
+    ushort u6;
+    hfloat uvX;
+    hfloat uvY;
     long u8;
 
 
@@ -172,7 +179,7 @@ struct Faces (int i){
 };
 struct Vertexes81f58067(int i){
     local int meshPartIdx = i;
-    MODVertexes81f58067 vertexes[meshPart[i].VertexCount]<optimize=false>;
+    MODVertexes81f58067 vertexes[meshPart[i].VertexCount]<optimize=false,read=readMODVertexes81f58067>;
 };
 struct Vertexes3c730760 (int i){
     local int meshPartIdx = i;
