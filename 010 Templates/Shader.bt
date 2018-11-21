@@ -8,9 +8,10 @@
 //--------------------------------------
 //Currently only ShaderPackageIntel.sdf
 
-struct Block;
+struct MeshBlock;
 struct BlockRef;
 struct Material;
+string readBlock(MeshBlock &b);
 //Offset of:
 //4E 6F 72 6D 61 6C 00 54 61 6E 67 65 6E 74 00 55 56 5F 50 72 69 6D 61 72 79 00 55 56 5F 53 65 63 6F 6E 64 61 72 79 00 57 65 69 67 68 74 00 57 65 69 67 68 74 00 4A 6F 69 6E 74 00 4A 6F 69 6E 74 00 43 6F 6C 6F 72 00 50 6F 73 69 74 69 6F 6e 50 46 00 49 41 53 6b 69 6e 38 77 74 32 55 56 00 50 6f 73 69 74 69 6f 6e 00
 //=0xaae2d85
@@ -23,7 +24,7 @@ struct BlockRef{
     uint64 pos<format=hex>;
     local uint64 curPos = FTell();
     FSeek(pos);
-    Block b;
+    MeshBlock b<read=readBlock,optimize=false>;
     FSeek(curPos);
 };
 struct Property{
@@ -50,10 +51,13 @@ string readProp(Property &p){
     return s;
 }
 
-string readBlock(Block &b){
+string readBlock(MeshBlock &b){
     string s;
     SPrintf( s, "%s %08x",readUnkn4(b.name), b.blocktype );
     return s;
+}
+string readBlockRef(BlockRef &b){
+    return readBlock(b.b);
 }
 
 struct Head{
@@ -69,10 +73,10 @@ struct Head{
 }head;
 FSeek(head.blockOffset);
 struct BlockHead{
-    BlockRef bref[head.blockCount]<optimize=false>;
+    BlockRef bref[head.blockCount]<read=readBlockRef,optimize=false>;
 }blockHead<optimize=false>;
 //FSeek(blockStart);
-struct Block{
+struct MeshBlock{
     uint64 name<read=readUnkn4>;
     uint32 unkn2<format=hex>;
     uint32 blocktype<format=hex>;
@@ -80,7 +84,7 @@ struct Block{
     short vertexStructSize;
     uint32 unkn4<format=hex>;
     Property props[propCount]<read=readProp,optimize=false>;
-} block[21]<read=readBlock,optimize=false>;
+} meshBlock[head.blockCount]<read=readBlock,optimize=false>;
 
 FSeek(head.materialOffset);
 struct MaterialHead{
@@ -98,4 +102,4 @@ struct Material{
     uint32 unkn6;
     uint32 name<read=readUnkn4>;
     uint32 unkn7[2]<format=hex>;
-} material[33751]<read=readMaterial>;
+} material[head.materialCount]<read=readMaterial,optimize=false>;
