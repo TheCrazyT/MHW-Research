@@ -43,7 +43,7 @@ string readUnkn4(uint64 unkn4){
 }
 string readMaterial(Material &m){
     string s;
-    SPrintf( s, "%s", readUnkn4(m.name) );
+    SPrintf( s, "%08x - %s", m.partSkinID,readUnkn4(m.name) );
     return s;
 }
 string readProp(Property &p){
@@ -54,7 +54,7 @@ string readProp(Property &p){
 
 string readBlock(MeshBlock &b){
     string s;
-    SPrintf( s, "%s %08x",readUnkn4(b.name), b.blocktype );
+    SPrintf( s, " %08x - %s", b.blocktype ,readUnkn4(b.name));
     return s;
 }
 string readBlockRef(BlockRef &b){
@@ -65,20 +65,19 @@ struct Head{
     uint32 tag<format=hex>;
     uint32 unkn1[2]<format=hex>;
     uint32 materialCount;
-    uint32 unkn2[2]<format=hex>;
+    uint32 shaderCount;
+    uint32 unkn2<format=hex>;
     uint32 blockCount;
     uint32 unkn3[7]<format=hex>;
     uint64 materialOffset<format=hex>;
-    uint64 unkn4<format=hex>;
+    uint64 shaderOffset<format=hex>;
     uint64 blockOffset<format=hex>;
     uint64 unkn5[4]<format=hex>;
     uint64 propNameOffset<format=hex>;
-}head;
-FSeek(head.blockOffset);
+};
 struct BlockHead{
     BlockRef bref[head.blockCount]<read=readBlockRef,optimize=false>;
-}blockHead<optimize=false>;
-//FSeek(blockStart);
+};
 struct MeshBlock{
     uint64 name<read=readUnkn4>;
     uint32 unkn2<format=hex>;
@@ -87,14 +86,12 @@ struct MeshBlock{
     short vertexStructSize;
     uint32 unkn4<format=hex>;
     Property props[propCount]<read=readProp,optimize=false>;
-} meshBlock[head.blockCount]<read=readBlock,optimize=false>;
-
-FSeek(head.materialOffset);
+};
 struct MaterialHead{
     uint32 unkn1;
     uint32 unkn2;
     uint32 unkn3;
-} materialHead;
+};
 struct Material{
     uint32 partSkinID<format=hex>;
     short unkn1;
@@ -105,4 +102,33 @@ struct Material{
     uint32 unkn6;
     uint32 name<read=readUnkn4>;
     uint32 unkn7[2]<format=hex>;
-} material[head.materialCount]<read=readMaterial,optimize=false>;
+};
+struct ShaderData{
+    uint64 pos;
+    uint32 length;
+    local uint32 oldpos = FTell();
+    FSeek(pos);
+    uint data[length];
+    FSeek(oldpos);
+    uint32 unkn2;
+    uint64 unkn3;
+    uint64 unkn4;
+    uint64 unkn5;
+    uint64 unkn6;
+    uint64 unkn7;
+};
+Head head<optimize=false>;
+FSeek(head.blockOffset);
+BlockHead blockHead<optimize=false>;
+//FSeek(blockStart);
+MeshBlock meshBlock[head.blockCount]<read=readBlock,optimize=false>;
+
+FSeek(head.materialOffset);
+MaterialHead materialHead;
+Material material[head.materialCount]<read=readMaterial,optimize=false>;
+
+//maybe also helpful:
+// https://github.com/tgjones/slimshader
+// http://timjones.io/blog/archive/2015/09/02/parsing-direct3d-shader-bytecode
+FSeek(head.shaderOffset+0x10);
+ShaderData shaderData[head.shaderCount]<optimize=false>;

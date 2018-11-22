@@ -1,0 +1,36 @@
+//--------------------------------------
+//--- 010 Editor v6.0.1 Script File
+//
+// File:
+// Author: CrazyT
+// Revision:
+// Purpose:
+//--------------------------------------
+//maybe also helpful:
+// https://github.com/tgjones/slimshader 
+
+RunTemplate();
+int i;
+int cnt=head.shaderCount;
+string filename;
+int shaderPos[cnt];
+int shaderLength[cnt];
+for(i=0;i<cnt;i++){
+    shaderPos[i] = shaderData[i].pos;
+    shaderLength[i] = shaderData[i].length;
+}
+int filenum = GetFileNum();
+for(i=0;i<cnt;i++){
+    SPrintf( filename, "d:\\tmp\\shaders\\%d.shdr", i);
+    SetSelection( shaderPos[i], shaderLength[i] );
+    CopyToClipboard();
+    FileNew("Hex");
+    PasteFromClipboard();
+    if( FileSave( filename ) < 0 )
+    {
+        MessageBox( idOk, GetScriptName(), "An error occured writing file '%s'.", filename );
+        return -1;
+    }
+    FileClose();
+    FileSelect( filenum );
+}
