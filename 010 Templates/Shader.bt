@@ -83,6 +83,12 @@ struct MeshBlock{
     uint32 unkn2<format=hex>;
     uint32 blocktype<format=hex>;
     short propCount<format=hex>;
+    //props seem to contain indexes for used props
+    //that (lastpropnum+1)*4 seems to match vertexStructSize
+    //for example: 
+    //   UV_Primary(0000000000501080)
+    // will result in (5+1)*4 = 24
+    //still unshure how to decode type
     short vertexStructSize;
     uint32 unkn4<format=hex>;
     Property props[propCount]<read=readProp,optimize=false>;
