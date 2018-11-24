@@ -12,6 +12,7 @@
 //------------------------------------------------
 const float WEIGHT_MULTIPLIER = 0.000977517;
 const float WEIGHT_MULTIPLIER2 = 0.25;
+const float C8S = 0.0078125;
 struct MODVertexBufferf637401c;
 struct MODVertexes81f58067;
 struct Bone;
@@ -91,13 +92,18 @@ struct Face{
 };
 string readMODVertexBufferf637401c(MODVertexBufferf637401c& v){
     string s;
-    SPrintf( s, "weight:%f %f %f %f u5:%hu u6:%hu", v.weight1,v.weight2, v.weight3,v.weight4,v.u5,v.u6  );
+    SPrintf( s, "weight:%f %f %f %f", v.weight1,v.weight2, v.weight3,v.weight4  );
     return s;
 
 }
 string readMODVertexes81f58067(MODVertexes81f58067& v){
     string s;
-    SPrintf( s, "weight:%f %f %f %f u5:%hu u6:%hu", v.weight1,v.weight2, v.weight3,v.weight4,v.u5,v.u6  );
+    SPrintf( s, "weight:%f %f %f %f", v.weight1,v.weight2, v.weight3,v.weight4  );
+    return s;
+}
+string readC8S(byte x){
+    string s;
+    SPrintf( s, "%f [raw=%d]",x*C8S,x);
     return s;
 }
 
@@ -105,12 +111,14 @@ struct MODVertexes81f58067{
     float x;
     float y;
     float z;
-    byte normalX;
-    byte normalY;
-    byte normalZ;
+    byte normalX<read=readC8S>;
+    byte normalY<read=readC8S>;
+    byte normalZ<read=readC8S>;
     ubyte u4;
-    ushort u5;
-    ushort u6;
+    byte tangentX<read=readC8S>;
+    byte tangentY<read=readC8S>;
+    byte tangentZ<read=readC8S>;
+    byte tangentW<read=readC8S>;
     hfloat uvX;
     hfloat uvY;
     long weight;
@@ -134,12 +142,14 @@ struct MODVertexBufferf637401c{
     float x;
     float y;
     float z;
-    byte normalX;
-    byte normalY;
-    byte normalZ;
+    byte normalX<read=readC8S>;
+    byte normalY<read=readC8S>;
+    byte normalZ<read=readC8S>;
     ubyte u4;
-    ushort u5;
-    ushort u6;
+    byte tangentX<read=readC8S>;
+    byte tangentY<read=readC8S>;
+    byte tangentZ<read=readC8S>;
+    byte tangentW<read=readC8S>;
     hfloat uvX;
     hfloat uvY;
     long weight;
@@ -155,12 +165,14 @@ struct MODVertexBuffer3c730760{
     float x;
     float y;
     float z;
-    byte normalX;
-    byte normalY;
-    byte normalZ;
+    byte normalX<read=readC8S>;
+    byte normalY<read=readC8S>;
+    byte normalZ<read=readC8S>;
     ubyte u4;
-    ushort u5;
-    ushort u6;
+    byte tangentX<read=readC8S>;
+    byte tangentY<read=readC8S>;
+    byte tangentZ<read=readC8S>;
+    byte tangentW<read=readC8S>;
     hfloat uvX;
     hfloat uvY;
     long u8;
