@@ -12,7 +12,6 @@
 struct MeshBlock;
 struct BlockRef;
 struct Material;
-struct Property;
 struct UnknStructData;
 struct UnknStructDataSub;
 struct UnknStruct2Sub;
@@ -29,6 +28,32 @@ string readUnknStruct2(UnknStruct2Sub &v);
 //local uint32 blockStart = 0x9bf9618;
 //local uint32 materialStart = 0x4510c;
 
+struct Property(int mode){
+    uint64 stringPointer<format=hex>;
+	union FlagsU(int mode){
+		struct Flags(int mode){
+            if(mode==0){
+				uint64 unkn : 20<format = hex>;
+				uint64 index : 8;
+				uint64 unkn1 : 20<format = hex>;
+				uint64 unkn2 : 16;
+            }
+        	if(mode==1){
+				uint64 unkn : 12<format = hex>;
+				uint64 index : 8;
+				uint64 unkn1 : 28<format = hex>;
+				uint64 unkn2 : 16;
+            }
+		} data(mode);
+		uint64 val<format = hex>;
+	}flags(mode);
+    local uint64 realStringPointer<format=hex>;
+    realStringPointer=stringPointer+head.textsOffset;
+    local uint64 curPos = FTell();
+    FSeek(realStringPointer);
+    string text<bgcolor=0x333333>;
+    FSeek(curPos);
+} ;
 struct UnknStruct2Sub{
 	uint32 pos<format=hex>;
     local uint32 oldpos = FTell();
@@ -44,8 +69,7 @@ struct UnknStruct2{
 	uint32 count;
 	uint32 unkn1;
 	//UnknStruct2Sub sub[count]<optimize=false,read=readUnknStruct2>;
-	//TODO: seems like this does not match 100%, atleast offset seems to be wrong
-	Property props[count]<read=readProp,optimize=false>;
+	Property props(1)[count]<read=readProp,optimize=false>;
 	uint32 empty[64-count*4]<format=hex>;
 };
 struct UnknStructDataSub{
@@ -78,24 +102,7 @@ struct BlockRef{
     MeshBlock b<read=readBlock,optimize=false>;
     FSeek(curPos);
 };
-struct Property{
-    uint64 stringPointer<format=hex>;
-	union FlagsU{
-		struct Flags{
-			uint64 unkn : 20<format = hex>;
-			uint64 index : 8;
-			uint64 unkn1 : 20<format = hex>;
-			uint64 unkn2 : 16;
-		} data;
-		uint64 val<format = hex>;
-	}flags;
-    local uint64 realStringPointer<format=hex>;
-    realStringPointer=stringPointer+head.textsOffset;
-    local uint64 curPos = FTell();
-    FSeek(realStringPointer);
-    string text<bgcolor=0x333333>;
-    FSeek(curPos);
-};
+
 string readUnknStruct2(UnknStruct2Sub &v){
     string res ="";
     SPrintf( res, "%s",v.text );
@@ -179,7 +186,7 @@ struct MeshBlock{
     //still unshure how to decode type
     short vertexStructSize;
     uint32 unkn4<format=hex>;
-    Property props[propCount]<read=readProp,optimize=false>;
+    Property props(0)[propCount]<read=readProp,optimize=false>;
 };
 struct MaterialHead{
     uint32 unkn1;
