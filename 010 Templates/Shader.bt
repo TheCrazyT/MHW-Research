@@ -15,6 +15,7 @@ struct Material;
 struct UnknStructData;
 struct UnknStructDataSub;
 struct UnknStruct2Sub;
+struct ShaderData;
 string readBlock(MeshBlock &b);
 string readSub(UnknStructDataSub &sub);
 string readUnkn4(uint64 unkn4);
@@ -102,7 +103,11 @@ struct BlockRef{
     MeshBlock b<read=readBlock,optimize=false>;
     FSeek(curPos);
 };
-
+string readShaderData(ShaderData &v){
+    string res ="";
+    SPrintf( res, "%s",v.text );
+    return res;
+}
 string readUnknStruct2(UnknStruct2Sub &v){
     string res ="";
     SPrintf( res, "%s",v.text );
@@ -220,7 +225,11 @@ struct ShaderData{
     uint64 unkn3;
     uint64 unkn4;
     uint64 unkn5;
-    uint64 unkn6;
+    uint64 pos;
+	local uint32 oldpos2 = FTell();
+	FSeek(pos+head.textsOffset);
+	string text<bgcolor=0x333333>;
+	FSeek(oldpos2);
     uint64 unkn7;
 };
 Head head<optimize=false,bgcolor=0xff0000>;
@@ -258,6 +267,6 @@ struct{
 // http://timjones.io/blog/archive/2015/09/02/parsing-direct3d-shader-bytecode
 FSeek(head.shaderOffset+0x10);
 struct{
-	ShaderData shaderData[head.shaderCount]<optimize=false,bgcolor=0xff00ff>;
+	ShaderData shaderData[head.shaderCount]<optimize=false,bgcolor=0xff00ff,read=readShaderData>;
 } shaderDatas;
 
