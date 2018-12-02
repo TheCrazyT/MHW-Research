@@ -315,7 +315,7 @@ struct AMatrix{
         float r4;
     }c[4];
 }amatrices[head.boneCount]<bgcolor=0x663333,read=readAMatrix>;
-byte unknBoneStuff[512]<bgcolor=0xAA3333>;
+byte remaptable[512]<bgcolor=0xAA3333>;
 }
 FSeek(head.groupOffset);
 float unknGroupStuff[head.groupCount*8]<bgcolor=0xAAAA33>;
