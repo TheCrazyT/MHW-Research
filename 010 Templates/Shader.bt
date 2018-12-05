@@ -7,7 +7,6 @@
 // Purpose:
 // File Mask: *.sdf
 //--------------------------------------
-//Currently only ShaderPackageIntel.sdf
 
 struct MeshBlock;
 struct BlockRef;
@@ -29,37 +28,46 @@ string readUnknStruct2(UnknStruct2Sub &v);
 //local uint32 blockStart = 0x9bf9618;
 //local uint32 materialStart = 0x4510c;
 
-struct Property(int mode){
+struct Property1{
     uint64 stringPointer<format=hex>;
-	union FlagsU(int mode){
-		struct Flags(int mode){
-            if(mode==0){
-				uint64 unkn : 20<format = hex>;
-				uint64 index : 8;
-				uint64 unkn1 : 20<format = hex>;
-				uint64 unkn2 : 16;
-            }
-        	if(mode==1){
-				uint64 unkn : 12<format = hex>;
-				uint64 index : 8;
-				uint64 unkn1 : 28<format = hex>;
-				uint64 unkn2 : 16;
-            }
-		} data(mode);
+	union FlagsU1{
+		struct Flags1{
+			uint64 unkn : 20<format = hex>;
+			uint64 index : 8;
+			uint64 unkn1 : 20<format = hex>;
+			uint64 unkn2 : 16;
+		} data;
 		uint64 val<format = hex>;
-	}flags(mode);
+	}flags;
     local uint64 realStringPointer<format=hex>;
     realStringPointer=stringPointer+head.textsOffset;
     local uint64 curPos = FTell();
     FSeek(realStringPointer);
-    string text<bgcolor=0x333333>;
+    string text<bgcolor=0x333333,optimize=false>;
+    FSeek(curPos);
+} ;
+struct Property2{
+    uint64 stringPointer<format=hex>;
+	union FlagsU2{
+		struct Flags2{
+			uint64 unkn : 14<format = hex>;
+			uint64 index : 6<format = hex>;
+			uint64 unkn1 : 64-14-6<format = hex>;
+		} data;
+		uint64 val<format = hex>;
+	}flags;
+    local uint64 realStringPointer<format=hex>;
+    realStringPointer=stringPointer+head.textsOffset;
+    local uint64 curPos = FTell();
+    FSeek(realStringPointer);
+    string text<bgcolor=0x333333,optimize=false>;
     FSeek(curPos);
 } ;
 struct UnknStruct2Sub{
 	uint32 pos<format=hex>;
     local uint32 oldpos = FTell();
 	FSeek(pos+head.textsOffset);
-	string text<bgcolor=0x333333>;
+	string text<bgcolor=0x333333,optimize=false>;
 	FSeek(oldpos);
 	uint32 unkn2<format=hex>;
 	uint16 unkn3<format=hex>;
@@ -70,7 +78,7 @@ struct UnknStruct2{
 	uint32 count;
 	uint32 unkn1;
 	//UnknStruct2Sub sub[count]<optimize=false,read=readUnknStruct2>;
-	Property props(1)[count]<read=readProp,optimize=false>;
+	Property2 props[count]<read=readProp2,optimize=false>;
 	uint32 empty[64-count*4]<format=hex>;
 };
 struct UnknStructDataSub{
@@ -78,7 +86,7 @@ struct UnknStructDataSub{
 	uint64 pos;
     local uint32 oldpos = FTell();
 	FSeek(pos+head.textsOffset);
-	string text<bgcolor=0x333333>;
+	string text<bgcolor=0x333333,optimize=false>;
 	FSeek(oldpos);
 	uint32 data[2]<format=hex>;
 };
@@ -86,7 +94,7 @@ struct UnknStructData{
 	uint64 pos;
 	local uint32 oldpos = FTell();
 	FSeek(pos+head.textsOffset);
-	string text<bgcolor=0x333333>;
+	string text<bgcolor=0x333333,optimize=false>;
 	FSeek(oldpos);
 	uint32 data1<format=hex>;
     uint32 uniqueId<format=hex>;
@@ -135,10 +143,16 @@ string readMaterial(Material &m){
     SPrintf( s, "%08x - %s", m.partSkinID,m.nameStr );
     return s;
 }
-string readProp(Property &p){
+string readProp1(Property1 &p){
     string s;
     //SPrintf( s, "%s(%016lx)", ReadString(p.stringPointer+head.textsOffset),p.unkn );
-    SPrintf( s, "%s(offset:%d flags.val:%08x)", p.text,p.flags.data.index*4,p.flags.val );
+    SPrintf( s, "(index:%3d offset:%3d flags.val:%08x%08x) %s", p.flags.data.index,p.flags.data.index*4,p.flags.val>>32,p.flags.val,p.text );
+    return s;
+}
+string readProp2(Property2 &p){
+    string s;
+    //SPrintf( s, "%s(%016lx)", ReadString(p.stringPointer+head.textsOffset),p.unkn );
+    SPrintf( s, "(index:%3d offset:%3d flags.val:%08x%08x) %s", p.flags.data.index, p.flags.data.index*4,p.flags.val>>32,p.flags.val,p.text );
     return s;
 }
 
@@ -178,7 +192,7 @@ struct MeshBlock{
     uint64 name<read=readUnkn4>;
 	local uint64 curPos = FTell();
     FSeek(name+head.textsOffset);
-    string nameStr<bgcolor=0x333333>;
+    string nameStr<bgcolor=0x333333,optimize=false>;
     FSeek(curPos);
     uint32 unkn2<format=hex>;
     uint32 blocktype<format=hex>;
@@ -191,7 +205,7 @@ struct MeshBlock{
     //still unshure how to decode type
     short vertexStructSize;
     uint32 unkn4<format=hex>;
-    Property props(0)[propCount]<read=readProp,optimize=false>;
+    Property1 props[propCount]<read=readProp1,optimize=false>;
 };
 struct MaterialHead{
     uint32 unkn1;
@@ -200,8 +214,8 @@ struct MaterialHead{
 };
 struct Material{
     uint32 partSkinID<format=hex>;
-    short unkn1;
-    short unkn2;
+    short deferredShaderDataIdx;
+    short shaderDataIdx;
     uint32 unkn3<format=hex>;
     short unkn4;
     short unkn5;
@@ -210,27 +224,30 @@ struct Material{
     uint32 name<read=readUnkn4>;
 	local uint64 curPos = FTell();
     FSeek(name+head.textsOffset);
-    string nameStr<bgcolor=0x333333>;
+    string nameStr<bgcolor=0x333333,optimize=false>;
     FSeek(curPos);
     uint32 unkn8[2]<format=hex>;
 };
 struct ShaderData{
-    uint64 pos;
+    uint64 pos<format=hex>;
     uint32 length;
     local uint32 oldpos = FTell();
     FSeek(pos);
     ubyte data[length]<bgcolor=0xaa00aa>;
     FSeek(oldpos);
-    uint32 unkn2;
-    uint64 unkn3;
-    uint64 unkn4;
-    uint64 unkn5;
-    uint64 pos;
+    uint32 unkn2<format=hex>;
+    uint64 unkn3<format=hex>;
+    uint64 unkn4<format=hex>;
+    uint64 unkn5<format=hex>;
+    uint32 pos2<format=hex>;
 	local uint32 oldpos2 = FTell();
-	FSeek(pos+head.textsOffset);
-	string text<bgcolor=0x333333>;
+	FSeek(pos2+head.textsOffset);
+	string text<bgcolor=0x333333,optimize=false>;
 	FSeek(oldpos2);
-    uint64 unkn7;
+	uint32 unkn7<format=hex>;
+    uint32 unkn8<format=hex>;
+	ushort unkn9;
+	ushort unkn10;
 };
 Head head<optimize=false,bgcolor=0xff0000>;
 FSeek(head.unknStruct1Offset);

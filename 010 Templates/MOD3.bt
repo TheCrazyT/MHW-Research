@@ -10,8 +10,8 @@
 //  ID Bytes: 
 //   History: 
 //------------------------------------------------
-const float WEIGHT_MULTIPLIER = 0.000977517;
-const float WEIGHT_MULTIPLIER2 = 0.25;
+const float WEIGHT_MULTIPLIER = 1.0/1023;
+const float WEIGHT_MULTIPLIER2 = 1.0/255.0;
 const float C8S = 0.0078125;
 struct MODVertexBufferf637401c;
 struct MODVertexes81f58067;
