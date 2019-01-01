@@ -32,7 +32,8 @@ struct Header{
     uint64 materialOffset<format=hex>;
 };
 struct Texture{
-    uint unkn1<format=hex>;
+    uint fileTypeCode<format=hex>;
+    // fileTypeCode for tex is [(zlib.crc32("rTexture".encode()) ^ 0xffffffff) & 0x7fffffff]
     byte unkn2[12];
     char path[256];
 };
