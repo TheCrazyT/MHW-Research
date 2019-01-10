@@ -68,7 +68,7 @@ struct Header{
 struct MeshPartV3{
     short unkn;
     short VertexCount;
-    short unkn;
+    short visibleCondition; //0 is visible at all times; 1 is visible when drawn; 2 is visible when on the back; ...
     short materialIdx;
     long lod;
     short unkn2;
