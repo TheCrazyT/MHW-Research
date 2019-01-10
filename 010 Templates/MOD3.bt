@@ -189,17 +189,23 @@ struct Faces (int i){
     local int meshPartIdx = i;
     Face faces[meshPart[i].FaceCount/3]<read=readFace>;
 };
-struct Vertexes81f58067(int i){
+struct Vertexes81f58067(int i,int hasdata){
     local int meshPartIdx = i;
-    MODVertexes81f58067 vertexes[meshPart[i].VertexCount]<optimize=false,read=readMODVertexes81f58067>;
+    if(hasdata){
+        MODVertexes81f58067 vertexes[meshPart[i].VertexCount]<optimize=false,read=readMODVertexes81f58067>;
+    }
 };
-struct Vertexes3c730760 (int i){
+struct Vertexes3c730760 (int i,int hasdata){
     local int meshPartIdx = i;
-    MODVertexBuffer3c730760 vertexes[meshPart[i].VertexCount];
+    if(hasdata){
+        MODVertexBuffer3c730760 vertexes[meshPart[i].VertexCount];
+    }
 };
-struct Vertexesf637401c(int i){
+struct Vertexesf637401c(int i,int hasdata){
     local int meshPartIdx = i;
-    MODVertexBufferf637401c vertexes[meshPart[i].VertexCount]<optimize=false,read=readMODVertexBufferf637401c>;
+    if(hasdata){
+        MODVertexBufferf637401c vertexes[meshPart[i].VertexCount]<optimize=false,read=readMODVertexBufferf637401c>;
+    }
 };
 struct UnknMeshStuff{
     uint count;
@@ -266,19 +272,25 @@ if(head.version==237){
             if(meshPart[i].VertexCount>0){
                 BOFF=meshPart[i].VertexSub+meshPart[i].vertexBase;
                 FSeek(head.VertexOffset+meshPart[i].VertexOffset+meshPart[i].blockSize*BOFF);
-                Vertexesf637401c vertexes(i)<bgcolor=0xff00ff>;
+                Vertexesf637401c vertexes(i,true)<bgcolor=0xff00ff>;
+            }else{
+                Vertexesf637401c vertexes(i,false);
             }
         }else if(meshPart[i].blocktype==0x81f58067){
             if(meshPart[i].VertexCount>0){
                 BOFF=meshPart[i].VertexSub+meshPart[i].vertexBase;
                 FSeek(head.VertexOffset+meshPart[i].VertexOffset+meshPart[i].blockSize*BOFF);
-                Vertexes81f58067 vertexes(i)<bgcolor=0xff00ff>;
+                Vertexes81f58067 vertexes(i,true)<bgcolor=0xff00ff>;
+            }else{
+                Vertexes81f58067 vertexes(i,false);
             }
         }else if(meshPart[i].blocktype==0x3c730760){
             if(meshPart[i].VertexCount>0){
                 BOFF=meshPart[i].VertexSub+meshPart[i].vertexBase;
                 FSeek(head.VertexOffset+meshPart[i].VertexOffset+meshPart[i].blockSize*BOFF);
-                Vertexes3c730760 vertexes(i)<bgcolor=0xff00ff>;
+                Vertexes3c730760 vertexes(i,true)<bgcolor=0xff00ff>;
+            }else{
+                Vertexes3c730760 vertexes(i,false);
             }
         }else{
             unknBlockType = i;
@@ -297,7 +309,11 @@ struct Bone{
     short unkn1;
     ubyte parentId;
     ubyte child;
-    float unkn2[5];
+    float unkn2;
+    float length;
+    float x;
+    float y;
+    float z;
 }bone[head.boneCount]<read=readBone,bgcolor=0x330066>;
 struct LMatrix{
     struct C{
