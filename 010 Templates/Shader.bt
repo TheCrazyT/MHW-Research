@@ -28,6 +28,8 @@ string readUnknStruct2(UnknStruct2Sub &v);
 //local uint32 blockStart = 0x9bf9618;
 //local uint32 materialStart = 0x4510c;
 
+//CRC hash-sums seem to be CRC-32/JAMCRC or atleast similar to it.
+
 struct Property1{
     uint64 stringPointer<format=hex>;
 	union FlagsU1{
@@ -52,7 +54,9 @@ struct Property2{
 		struct Flags2{
 			uint64 unkn : 14<format = hex>;
 			uint64 index : 6<format = hex>;
-			uint64 unkn1 : 64-14-6<format = hex>;
+			//for example (zlib.crc32("Position".encode()) ^ 0xffffffff) & 0x7fffffff
+			uint64 nameHash : 32<format = hex>;
+			uint64 unkn1 : 32-14-6<format = hex>;
 		} data;
 		uint64 val<format = hex>;
 	}flags;
@@ -97,6 +101,7 @@ struct UnknStructData{
 	string text<bgcolor=0x333333,optimize=false>;
 	FSeek(oldpos);
 	uint32 data1<format=hex>;
+	//for example (zlib.crc32("SSVRLinear".encode()) ^ 0xffffffff) & 0x7fffffff
     uint32 uniqueId<format=hex>;
     uint32 data2<format=hex>;
     uint32 countSubElements;
