@@ -229,7 +229,7 @@ string readMeshPart(MeshPartV3 &v){
 }
 string readBone(Bone &b){
     string s;
-    SPrintf( s, "parentId:%d", (int)b.parentId);
+    SPrintf( s, "parentId:%03d child:%03d length:% 6.2f x:% 6.2f y:% 6.2f z:% 6.2f", (int)b.parentId, (int)b.child,b.length,b.x,b.y,b.z);
     return s;
 }
 string readLMatrix(LMatrix &v){

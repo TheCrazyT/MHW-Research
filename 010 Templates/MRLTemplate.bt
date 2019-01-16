@@ -32,16 +32,15 @@ struct Header{
     uint64 materialOffset<format=hex>;
 };
 struct Texture{
-    uint fileTypeCode<format=hex>;
     // fileTypeCode for tex is [(zlib.crc32("rTexture".encode()) ^ 0xffffffff) & 0x7fffffff]
+    uint fileTypeCode<format=hex>;
     byte unkn2[12];
     char path[256];
 };
 struct Material{
     uint headId<format=hex>;
-    ubyte unkn1;
-    ubyte unkn2;
-    ubyte unkn3[2];
+	//for example (zlib.crc32("NPC_Mt__4".encode()) ^ 0xffffffff) & 0x7fffffff
+    uint materialNameHash<format=hex>;
     uint64 skinid<format=hex>;
     uint matSize;
 	short unkn4;
