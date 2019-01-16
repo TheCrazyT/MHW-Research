@@ -52,14 +52,14 @@ struct Property2{
     uint64 stringPointer<format=hex>;
 	union FlagsU2{
 		struct Flags2{
-			uint64 unkn : 14<format = hex>;
-			uint64 index : 6<format = hex>;
-			//for example (zlib.crc32("Position".encode()) ^ 0xffffffff) & 0x7fffffff
-			uint64 nameHash : 32<format = hex>;
-			uint64 unkn1 : 32-14-6<format = hex>;
+			uint32 unkn : 14<format = hex>;
+			uint32 index : 6<format = hex>;
+			uint32 unkn1 : 32-14-6<format = hex>;
 		} data;
-		uint64 val<format = hex>;
+		uint32 val<format = hex>;
 	}flags;
+	//for example (zlib.crc32("Position".encode()) ^ 0xffffffff) & 0x7fffffff
+	uint nameHash : 32<format = hex>;
     local uint64 realStringPointer<format=hex>;
     realStringPointer=stringPointer+head.textsOffset;
     local uint64 curPos = FTell();
