@@ -211,9 +211,9 @@ struct MaterialHead{
     uint32 unkn1;
     uint32 unkn2;
     uint32 unkn3;
+	uint32 unkn4;
 };
 struct Material{
-    uint32 shaderHash<format=hex>;
     short deferredShaderDataIdx;
     short shaderDataIdx;
     uint32 unkn3<format=hex>;
@@ -227,6 +227,8 @@ struct Material{
     string nameStr<bgcolor=0x333333,optimize=false>;
     FSeek(curPos);
     uint32 unkn8[2]<format=hex>;
+	////for example (zlib.crc32("GpuRibbonFireVolume".encode()) ^ 0xffffffff) & 0x7fffffff
+    uint32 shaderHash<format=hex>;
 };
 struct ShaderData{
     uint64 pos<format=hex>;
