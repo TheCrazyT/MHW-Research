@@ -41,7 +41,8 @@ struct Material{
     uint headId<format=hex>;
 	//for example (zlib.crc32("NPC_Mt__4".encode()) ^ 0xffffffff) & 0x7fffffff
     uint materialNameHash<format=hex>;
-    uint64 skinid<format=hex>;
+	uint shaderHash<format=hex>;
+    uint skinid<format=hex>;
     uint matSize;
 	short unkn4;
 	byte floatArrOff;

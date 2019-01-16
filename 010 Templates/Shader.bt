@@ -140,7 +140,7 @@ string readUnkn4(uint64 unkn4){
 }
 string readMaterial(Material &m){
     string s;
-    SPrintf( s, "%08x - %s", m.partSkinID,m.nameStr );
+    SPrintf( s, "%08x - %s", m.shaderHash,m.nameStr );
     return s;
 }
 string readProp1(Property1 &p){
@@ -213,7 +213,7 @@ struct MaterialHead{
     uint32 unkn3;
 };
 struct Material{
-    uint32 partSkinID<format=hex>;
+    uint32 shaderHash<format=hex>;
     short deferredShaderDataIdx;
     short shaderDataIdx;
     uint32 unkn3<format=hex>;
