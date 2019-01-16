@@ -195,6 +195,8 @@ struct MeshBlock{
     string nameStr<bgcolor=0x333333,optimize=false>;
     FSeek(curPos);
     uint32 unkn2<format=hex>;
+	//blocktype is actually just the hash of the name
+	//for example (zlib.crc32("IANonSkin1UV".encode()) ^ 0xffffffff) & 0x7fffffff
     uint32 blocktype<format=hex>;
     short propCount<format=hex>;
     //props seem to contain indexes for used props
@@ -227,7 +229,7 @@ struct Material{
     string nameStr<bgcolor=0x333333,optimize=false>;
     FSeek(curPos);
     uint32 unkn8[2]<format=hex>;
-	////for example (zlib.crc32("GpuRibbonFireVolume".encode()) ^ 0xffffffff) & 0x7fffffff
+	//for example (zlib.crc32("GpuRibbonFireVolume".encode()) ^ 0xffffffff) & 0x7fffffff
     uint32 shaderHash<format=hex>;
 };
 struct ShaderData{
