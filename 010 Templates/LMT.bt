@@ -1,0 +1,165 @@
+//------------------------------------------------
+//--- 010 Editor v8.0.1 Binary Template
+//
+//      File: 
+//   Authors: CrazyT
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: *.lmt
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+struct LMTKeyframeDef{
+	ubyte bufferType;
+	ubyte usage;
+	ubyte jointType;
+	ubyte boneId;
+	long bufferSize;
+	float weight;
+	long unkn2;
+	uint64 bufferOffset<format = hex>;
+	float referenceFrame[4];
+	uint64 boundsOffset<format = hex>;
+};
+struct LMTVec3Frame{
+	float x;
+	float y;
+	float z;
+};
+struct LMTQuatFramev14{
+	long l1;
+	long l2;
+};
+struct LMTXWQuat{
+	long l;
+};
+struct LMTYWQuat{
+	long l;
+};
+struct LMTZWQuat{
+	long l;
+};
+string readKBR(LMTKeyframeDef &x){
+    string s;
+    SPrintf( s, "BoundsOffset:%08x%08x BufferOffset:%08x%08x BufferType:%x",x.boundsOffset>>32,x.boundsOffset,x.bufferOffset>>32,x.bufferOffset,x.bufferType);
+    return s;
+}
+
+struct Head{
+	uint id<format=hex>;
+	short version;
+	short numBlocks;
+	if(version > 90){
+		uint64 unkn1;
+	}
+	
+	uint64 offsets[numBlocks]<format=hex>;
+} head<bgcolor=0x00FF00>;
+
+local int i;
+local int isub;
+struct{
+for(i=0;i<head.numBlocks;i++){
+	if(head.offsets[i]==0)continue;
+	isub = i;
+	FSeek(head.offsets[i]);
+	struct LMTAniBlockHeader{
+		uint64 offset;
+		long boneCount;
+		long frameCount;
+		long loopFrame;
+		uint unkn1[19];
+	} lhead<bgcolor=0xFF0000>;
+}
+}lheads;
+struct{
+local int b;
+local int correct = 0;
+for(i=0;i<head.numBlocks;i++){
+	if(head.offsets[i]==0){
+		correct++;
+		continue;
+	}
+	FSeek(lheads.lhead[i-correct].offset);
+	for(b=0;b<lheads.lhead[i-correct].boneCount;b++){
+		LMTKeyframeDef kbr<bgcolor=0x0000FF,read=readKBR>;
+	}
+}
+} kbrs;
+
+local int j;
+local int maxj = sizeof(kbrs.kbr);
+for(j=0;j<maxj;j++){
+	if(kbrs.kbr[j].boundsOffset==0)continue;
+	FSeek(kbrs.kbr[j].boundsOffset);
+	struct LMTKeyframeBounds{
+		float addin[4];
+		float offset[4];
+	}bounds<bgcolor=0x00FFFF>;
+}
+
+local int cursize;
+for(j=0;j<maxj;j++){
+	if(kbrs.kbr[j].bufferOffset==0)continue;
+	if(kbrs.kbr[j].bufferSize==0)continue;
+	FSeek(kbrs.kbr[j].bufferOffset);
+	struct{
+	while(cursize < kbrs.kbr[j].bufferSize){
+		if(kbrs.kbr[j].bufferType == 1){
+			cursize +=1;
+		}
+		else if(kbrs.kbr[j].bufferType == 2){
+			LMTVec3Frame vec;
+			cursize += sizeof(vec);
+		}
+		else if(kbrs.kbr[j].bufferType == 3){
+			LMTVec3Frame vec;
+			cursize += sizeof(vec);
+		}
+		else if(kbrs.kbr[j].bufferType == 4){
+			cursize +=1;
+		}
+		else if(kbrs.kbr[j].bufferType == 5){
+			cursize +=1;
+		}
+		else if(kbrs.kbr[j].bufferType == 6){
+			LMTQuatFramev14 f;
+			cursize += sizeof(f);
+		}
+		else if(kbrs.kbr[j].bufferType == 7){
+			cursize +=1;
+		}
+		else if(kbrs.kbr[j].bufferType == 8){
+			cursize +=1;
+		}
+		else if(kbrs.kbr[j].bufferType == 9){
+			LMTVec3Frame vec;
+			cursize += sizeof(vec);
+		}
+		else if(kbrs.kbr[j].bufferType == 10){
+			cursize +=1;
+		}
+		else if(kbrs.kbr[j].bufferType == 11){
+			LMTXWQuat q;
+			cursize += sizeof(q);
+		}
+		else if(kbrs.kbr[j].bufferType == 12){
+			LMTYWQuat q;
+			cursize += sizeof(q);
+		}
+		else if(kbrs.kbr[j].bufferType == 13){
+			LMTZWQuat q;
+			cursize += sizeof(q);
+		}
+		else if(kbrs.kbr[j].bufferType == 14){
+			cursize +=1;
+		}
+		else if(kbrs.kbr[j].bufferType == 15){
+			cursize +=1;
+		}else {
+			cursize +=1;
+		}
+	}
+	}buffer<bgcolor=0xFFFF00>;
+}
