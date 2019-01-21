@@ -22,14 +22,44 @@ struct LMTKeyframeDef{
 	float referenceFrame[4];
 	uint64 boundsOffset<format = hex>;
 };
+struct LMTVec3{
+	float x;
+	float y;
+	float z;
+};
+struct LMTQuadraticVector3{
+	byte addcount;
+	byte flags;
+	short s;
+	float vx;
+	float vy;
+	float vz;
+	local int i=0;
+	float f[8];
+};
 struct LMTVec3Frame{
 	float x;
 	float y;
 	float z;
 };
+struct LMTQuatized8Vec3{
+	byte f[3];
+	byte reframe;
+};
+struct LMTQuatized16Vec3{
+	short f[3];
+	short relframe;
+};
+struct LMTQuat3Frame{
+	float f[3];
+	long l;
+};
 struct LMTQuatFramev14{
 	long l1;
 	long l2;
+};
+struct LMTQuatized32Quat{
+	long l;
 };
 struct LMTXWQuat{
 	long l;
@@ -39,6 +69,12 @@ struct LMTYWQuat{
 };
 struct LMTZWQuat{
 	long l;
+};
+struct LMTQuatized11Quat{
+	short s[3];
+};
+struct LMTQuatized9Quat{
+	byte b[5];
 };
 string readKBR(LMTKeyframeDef &x){
     string s;
@@ -73,6 +109,7 @@ for(i=0;i<head.numBlocks;i++){
 	} lhead<bgcolor=0xFF0000>;
 }
 }lheads;
+local int maxj = 0;
 struct{
 local int b;
 local int correct = 0;
@@ -84,12 +121,12 @@ for(i=0;i<head.numBlocks;i++){
 	FSeek(lheads.lhead[i-correct].offset);
 	for(b=0;b<lheads.lhead[i-correct].boneCount;b++){
 		LMTKeyframeDef kbr<bgcolor=0x0000FF,read=readKBR>;
+		maxj++;
 	}
 }
 } kbrs;
 
 local int j;
-local int maxj = sizeof(kbrs.kbr);
 for(j=0;j<maxj;j++){
 	if(kbrs.kbr[j].boundsOffset==0)continue;
 	FSeek(kbrs.kbr[j].boundsOffset);
@@ -98,16 +135,18 @@ for(j=0;j<maxj;j++){
 		float offset[4];
 	}bounds<bgcolor=0x00FFFF>;
 }
-
 local int cursize;
 for(j=0;j<maxj;j++){
 	if(kbrs.kbr[j].bufferOffset==0)continue;
 	if(kbrs.kbr[j].bufferSize==0)continue;
 	FSeek(kbrs.kbr[j].bufferOffset);
+	cursize = 0;
 	struct{
-	while(cursize < kbrs.kbr[j].bufferSize){
+	local int bufferSize = kbrs.kbr[j].bufferSize;
+	while(cursize < bufferSize){
 		if(kbrs.kbr[j].bufferType == 1){
-			cursize +=1;
+			LMTVec3 vec;
+			cursize += sizeof(vec);
 		}
 		else if(kbrs.kbr[j].bufferType == 2){
 			LMTVec3Frame vec;
@@ -118,27 +157,24 @@ for(j=0;j<maxj;j++){
 			cursize += sizeof(vec);
 		}
 		else if(kbrs.kbr[j].bufferType == 4){
-			cursize +=1;
+			LMTQuatized16Vec3 q;
+			cursize += sizeof(q);
 		}
 		else if(kbrs.kbr[j].bufferType == 5){
-			cursize +=1;
+			LMTQuatized8Vec3 q;
+			cursize += sizeof(q);
 		}
 		else if(kbrs.kbr[j].bufferType == 6){
 			LMTQuatFramev14 f;
 			cursize += sizeof(f);
 		}
 		else if(kbrs.kbr[j].bufferType == 7){
-			cursize +=1;
-		}
-		else if(kbrs.kbr[j].bufferType == 8){
-			cursize +=1;
+			LMTQuatized32Quat q;
+			cursize += sizeof(q);
 		}
 		else if(kbrs.kbr[j].bufferType == 9){
 			LMTVec3Frame vec;
 			cursize += sizeof(vec);
-		}
-		else if(kbrs.kbr[j].bufferType == 10){
-			cursize +=1;
 		}
 		else if(kbrs.kbr[j].bufferType == 11){
 			LMTXWQuat q;
@@ -153,10 +189,12 @@ for(j=0;j<maxj;j++){
 			cursize += sizeof(q);
 		}
 		else if(kbrs.kbr[j].bufferType == 14){
-			cursize +=1;
+			LMTQuatized11Quat q;
+			cursize += sizeof(q);
 		}
 		else if(kbrs.kbr[j].bufferType == 15){
-			cursize +=1;
+			LMTQuatized9Quat q;
+			cursize += sizeof(q);
 		}else {
 			cursize +=1;
 		}
