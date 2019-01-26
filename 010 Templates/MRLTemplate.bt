@@ -55,7 +55,11 @@ struct Material{
 
 string ReadMaterial(Material& v){
     string s;
-    SPrintf( s, "%08x%08x",v.skinid>>32,v.skinid);
+    string s2="";
+    if(v.headId==0x4516E7AB){
+        s2 = "nDraw::Material";
+    }
+    SPrintf( s, "%s skinid:%08x shaderHash:%08x",s2,v.skinid,v.shaderHash);
     return s;
 }
 
@@ -87,10 +91,12 @@ struct UnknS3A(int count){
 string ReadTexture(Texture& t){
     return t.path;
 }
+string ReadHeader(Header& h){
+    return "rMaterial";
+}
 
 
-
-Header head<bgcolor=0x0000ff>;
+Header head<bgcolor=0x0000ff,read=ReadHeader>;
 Texture textures[head.textureCount]<read=ReadTexture,bgcolor=0xff0000>;
 
 string readUnknS2(UnknS2 &v){
