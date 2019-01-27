@@ -18,6 +18,17 @@ def findFunctionTable(off,relocSectionData):
             n += pe.OPTIONAL_HEADER.ImageBase + sectionInfos[".reloc"][1]
             return n
     return None
+def findFunctionTblStore(off,relocSectionData):
+    global pe,sectionInfos
+    
+    #48 89 05 = mov qword ptr ds:[
+    for i in range(off,off+50):
+        if (ord(relocSectionData[i]) == 0x48)and(ord(relocSectionData[i+1]) == 0x89)and(ord(relocSectionData[i+2]) == 0x05):
+            relOff = unpack("i",relocSectionData[i+3:i+3+4])[0]
+            n = i+7+relOff
+            n += pe.OPTIONAL_HEADER.ImageBase + sectionInfos[".reloc"][1]
+            return n
+    return None
 def dict_factory(cursor, row):
     d = {}
     for idx, col in enumerate(cursor.description):
@@ -30,6 +41,10 @@ conn.execute('''CREATE TABLE IF NOT EXISTS raw_off_cache
              (s text, offset number)''')
 conn.execute('''CREATE TABLE IF NOT EXISTS function_table_pointers_cache
              (s text, voffset number)''')
+conn.execute('''CREATE TABLE IF NOT EXISTS function_table_pointers_store_cache
+             (s text, voffset number)''')
+conn.execute('''CREATE TABLE IF NOT EXISTS function_reference_cache
+             (s text, offset number)''')
 conn.execute('''CREATE TABLE IF NOT EXISTS config
              (name text,value text,value_int number)''')
 
@@ -65,6 +80,8 @@ if(digest != file_hash):
     print("file changed,removing cache [%s != %s]" % (digest,file_hash))
     conn.execute('DELETE FROM raw_off_cache')
     conn.execute('DELETE FROM function_table_pointers_cache')
+    conn.execute('DELETE FROM function_table_pointers_store_cache')
+    conn.execute('DELETE FROM function_reference_cache')
     if file_hash is None:
         conn.execute('INSERT INTO config (value,name) VALUES (?,?)',(digest,'file_hash'))
         conn.commit()
@@ -73,12 +90,17 @@ if(digest != file_hash):
         conn.commit()
 
 rawOffsCache = {}
+refCache = {}
 fTblCache = {}
+fTblStoreCache = {}
 for row in conn.execute('SELECT s,offset FROM raw_off_cache'):
     rawOffsCache[row["s"]] = row["offset"]
 for row in conn.execute('SELECT s,voffset FROM function_table_pointers_cache'):
     fTblCache[row["s"]] = row["voffset"]
-
+for row in conn.execute('SELECT s,voffset FROM function_table_pointers_store_cache'):
+    fTblStoreCache[row["s"]] = row["voffset"]
+for row in conn.execute('SELECT s,offset FROM function_reference_cache'):
+    refCache[row["s"]] = row["offset"]
     
     
 virtualOffs = {}
@@ -109,7 +131,7 @@ with open("strings.txt") as infile:
             
 print("len fTblCache: %d\nlen virtualOffs: %d\nend: %d\n\n" % (len(fTblCache),len(virtualOffs),len(relocSectionData))) 
 conn.commit()
-print('"Name","FunctionTable offset"')
+print('"Name","FunctionTable offset","FunctionTable Store offset"')
 sys.stdout.flush()
 
 N1 = (len(relocSectionData) / 4)
@@ -136,7 +158,11 @@ cmpN4 += X+L4
 
 for s in fTblCache:
     fTbl = fTblCache[s]
-    print("\"%s\",0x%016x" % (s,fTbl))
+    fTblStore = fTblStoreCache[s]
+    if(fTblStore is None):
+        print("\"%s\",0x%016x," % (s,fTbl))
+    else:
+        print("\"%s\",0x%016x,0x%016x" % (s,fTbl,fTblStore))
     sys.stdout.flush()
     del virtualOffs[s]
 
@@ -170,10 +196,17 @@ for s in virtualOffs:
     i += x*4
     
     if(x > 0):
+        pos = i
         fTbl = findFunctionTable(i,relocSectionData)
         if not fTbl is None:
+            fTblStore = findFunctionTblStore(i,relocSectionData)
+            conn.execute('INSERT INTO function_reference_cache (s,offset) VALUES (?,?)', (s,pos))
             conn.execute('INSERT INTO function_table_pointers_cache (s,voffset) VALUES (?,?)', (s,fTbl))
+            conn.execute('INSERT INTO function_table_pointers_store_cache (s,voffset) VALUES (?,?)', (s,fTblStore))
             conn.commit()
-            print("\"%s\",0x%016x" % (s,fTbl))
+            if(fTblStore is None):
+                print("\"%s\",0x%016x," % (s,fTbl))
+            else:
+                print("\"%s\",0x%016x,0x%016x" % (s,fTbl,fTblStore))
             sys.stdout.flush()
         
