@@ -10,13 +10,57 @@
 //  ID Bytes: 
 //   History: 
 //------------------------------------------------
+
+local char possibleStrings[] = "SSAddNormal__disclosure,SSAddNormalMask__disclosure,SSAlbedo__disclosure,SSAlbedoBlend__disclosure,SSAlbedoBlendMap__disclosure,SSAlpha,SSAlpha__disclosure,SSAtmosphereDepth,SSAtmosphereScatter,SSBase,SSBlend,SSBorderLinear,SSBorderPoint,SSClampLinear,SSClampPoint,SSColorDiv__disclosure,SSColorGrading,SSColorMask__disclosure,SSCube,SSCube__disclosure,SSCubeToIRM,SSDecalCube,SSDecalFlow,SSDepth,SSDetail__disclosure,SSDetailEmissive__disclosure,SSDetailNormal__disclosure,SSDevelop,SSDisplacement__disclosure,SSEmissive__disclosure,SSFaceMap__disclosure,SSFilter,SSFilterBlend,SSFlow__disclosure,SSFogLinear,SSFogWrapLinear,SSFur__disclosure,SSFurNormal__disclosure,SSFurVelocity__disclosure,SSFx__disclosure,SSGeneric__disclosure,SSGUI,SSLinear,SSLR_Classify,SSLR_Classify_FULL_RES,SSLR_ClearRay,SSLR_Resolve,SSLR_Trace_Accurate,SSLR_Trace_Approximate,SSLR_Trace_Approximate_FULL_RES,SSLR_Trace_Clear,SSMaterialBlend__disclosure,SSNormal__disclosure,SSOpacity__disclosure,SSP2O,SSPaint__disclosure,SSPanoramaMap__disclosure,SSPattern__disclosure,SSPoint,SSPrimAlbedo,SSPrimAlphaMask,SSPrimCube,SSPrimNormal,SSPrimOcclusionMap,SSPrimSceneTex,SSPrimSceneTexDownSample,SSPrimTubeLightTexture,SSPrimTurbulence,SSProjectionLight,SSRadialFilterClampLinear,SSRefraction,SSRefractionMask__disclosure,SSRMT__disclosure,SSShadow,SSShadowBlur,SSShadowBlur_NO_SSAO,SSShadowBlurFull,SSShadowBlurFull_NO_SSAO,SSShadowUpsampling,SSShadowUpsampling_NO_SSAO,SSSHDiffuse,SSSkin__disclosure,SSSky,SSSkyBase,SSSkyBlend,SSSkyCloud,SSSkyCurve,SSSkyStarrySky,SSSkySun,SSSkySunBloom,SSSphere__disclosure,SSSplash__disclosure,SSSSS_CopyToExtraColor,SSSSS_HorizontalBlur,SSSSS_Lighting,SSSSS_VerticalBlur,SSSystemCopy,SSTranslucency__disclosure,SSVertexPosition__disclosure,SSVfxNormal__disclosure,SSVolumeBlendDepth,SSVRLinear,SSVRPoint,SSVRWrapPoint,SSWater,SSWaterCustom,SSWaterCustomWrap,SSWaterWave,SSWaterWaveWrap,SSWaterWrap,SSWrapLinear,gColorPickTexture,gDeformedVB,gDestAccum,gDestNormal,gDestVB,gE#2,gE#hE2,gE#W,gEmitterBinary,gEmitterData,gEmitterDataUAV,gEmitterRange,gEmitterRangeUAV,gEmitters,gEmitterUsedIndices,gErrorUnitCount,gErrorUnitData,gG^),gGpuLogUAV,gHotLights,gHotLightsSRV,gImpactIvyFloorPointBuffer,gImpactIvyFloorPointBufferPF,gIndirectArgs,gIndirectArgsUAV,giNM,gInstanceBuffer,gInstanceBufferMaterial,gInstanceBufferPF,gInstanceIndexBuffer,gjDI5s,gJointMatrixBuffer,gJointMatrixBufferPF,gl/5,gLightList,gLightParameters,gLuminanceBuffer,gLuminanceBufferSRV,gn,gNL4,gnYO,gOriginalVB,gP{I,gParticleBinary,gParticleBinaryUAV,gParticleData,gParticleDataUAV,gParticleUnusedIndices,gParticleUnusedIndicesUAV,gPickCount,gPickData,gPlantOnSurfaceIndexBuffer,gPlantOnSurfaceMatrixBuffer,gPlantOnSurfaceMatrixBufferPF,gPrimCsInHeader,gPrimCsInMaterials,gPrimCsInVertex,gPrimCsOutIndex,gPrimCsOutVertex,gPrimCsTemporal,gPrimIndex,gPrimTemporal,gPrimVertex,gq_w\!,gRedirect,gRWRangeCheck,gRWTexture,gSortBuffer,gSpeedTreeBoundingBuffer,gSpeedTreeCsLocalWindIndexBuffer,gSpeedTreeGlobalWindBuffer,gSpeedTreeGlobalWindBufferPF,gSpeedTreeLocalWindBuffer,gSpeedTreeLocalWindBufferPF,gSpeedTreeLocalWindIndexBuffer,gSpeedTreeLocalWindIndexBufferPF,gSpeedTreeVertexBuffer,gSrcAccum,gSrcIB,gSrcVB,gStarInfoBuffer,gt?5,gTileLightParam,gTileLightParamSRV,gToneMappingHistogramSRV,gToneMappingHistogramUAV,gTubeLights,gVZA,gWavePointBuffer,CB_BGTexture,CB_CombinedFilter,CB_CombinedFilter_ColorCorrect,CB_CombinedFilter_ImagePlane,CB_PlantOnSurface,CB_TemporalAA,CB_TemporalAA2,CBAmbientOccluder,CBAmbientOcclusion,CBAtmosphere,CBBitonicSort,CBBloom,CBBloomSample,CBBokehComposite,CBColorCorrect,CBColorCorrectCube,CBColorCorrectToneCurve,CBComputeSkinning,CBConstant,CBConstantHaltonSequence,CBCSClear,CBCubeBlend,CBCubeCopy,CBDebug,CBDecal,CBDecalCommon,CBDepthColor,CBDevelopColorPick,CBDevelopFlags,CBDOFFilter,CBErrorUnit,CBFilter,CBFilter2,CBFog,CBFXAAParam,CBGaussian,CBGlobalIllumination,CBGodRaysConfiguration,CBGodRaysFilter,CBGodRaysIterator,CBGUIDevelop,CBGUIDistanceField,CBGUIGBuffer,CBGUIGlobal,CBGUIIcon,CBGUINoiseAndFade,CBHazeFilter,CBHeightToNormal,CBHermiteCurve,CBHermiteCurveRGB,CBImagePlane,CBImagePlane2,CBInstancing,CBLGTPRBDebug,CBLGTPRBGen,CBLight,CBLightParameters,CBLightProbes,CBLightShaft,CBLightShaft_LightParam,CBLuminance,CBLuminanceDebugDisp,CBLUTBlending,CBLUTMaking,CBMaterialCommon__disclosure,CBMaterialDebug,CBMhDecal,CBMhDecalSM,CBMhEmissiveFog__disclosure,CBMhMaterial_EM105_EVCLocal__disclosure,CBMhMaterialBurnLocal__disclosure,CBMhMaterialEC021Local__disclosure,CBMhMaterialEM002Local__disclosure,CBMhMaterialEM011Local__disclosure,CBMhMaterialEM024Local__disclosure,CBMhMaterialEM036Local__disclosure,CBMhMaterialEM044Local__disclosure,CBMhMaterialEM100Local__disclosure,CBMhMaterialEM102Local__disclosure,CBMhMaterialEM103Local__disclosure,CBMhMaterialEM105Local__disclosure,CBMhMaterialEM106Local__disclosure,CBMhMaterialEM109Local__disclosure,CBMhMaterialEM111Local__disclosure,CBMhMaterialEM115Local__disclosure,CBMhMaterialEM117Local__disclosure,CBMhMaterialEM118Local__disclosure,CBMhMaterialEMGlobal,CBMhMaterialEMLocal__disclosure,CBMhMaterialEMSLocal__disclosure,CBMhMaterialFakeEyeLocal__disclosure,CBMhMaterialFakeInnerEmitLocal__disclosure,CBMhMaterialFakeLensLocal__disclosure,CBMhMaterialFakeRefractionLocal__disclosure,CBMhMaterialFakeSphereLocal__disclosure,CBMhMaterialFlagWaveLocal__disclosure,CBMhMaterialFlowDirLocal__disclosure,CBMhMaterialFlowLavaLocal__disclosure,CBMhMaterialFurLocal__disclosure,CBMhMaterialGlobal,CBMhMaterialIvyFloor,CBMhMaterialIvyFloorLocal__disclosure,CBMhMaterialLandscapeFlowLocal__disclosure,CBMhMaterialLandscapeLocal__disclosure,CBMhMaterialNikuLocal__disclosure,CBMhMaterialNPCEditFaceLocal__disclosure,CBMhMaterialNPCEyeLocal__disclosure,CBMhMaterialNPCFaceLocal__disclosure,CBMhMaterialNPCHairLocal__disclosure,CBMhMaterialNPCLocal__disclosure,CBMhMaterialNPCSkinLocal__disclosure,CBMhMaterialPLEditFaceLocal__disclosure,CBMhMaterialPLEyeLocal__disclosure,CBMhMaterialPLHairLocal__disclosure,CBMhMaterialPLLocal__disclosure,CBMhMaterialPLSkinLocal__disclosure,CBMhMaterialScrWaterLocal__disclosure,CBMhMaterialSimpleLocal__disclosure,CBMhMaterialSpeedTreeStdBlendLocal__disclosure,CBMhMaterialSpeedTreeStdLocal__disclosure,CBMhMaterialStdBlendLocal__disclosure,CBMhMaterialStdLocal__disclosure,CBMhMaterialUberLocal__disclosure,CBMhMaterialVfxDebufBodyLocal__disclosure,CBMhMaterialVfxDispWaveLocal__disclosure,CBMhMaterialVfxDistDispLocal__disclosure,CBMhMaterialVfxDistDispWLocal__disclosure,CBMhMaterialVfxFakeInnerLocal__disclosure,CBMhMaterialVfxFloodLocal__disclosure,CBMhMaterialVfxSandFallLocal__disclosure,CBMhMaterialVfxTornadoLocal__disclosure,CBMhMaterialVfxWaterLocal__disclosure,CBMhMaterialVfxWave,CBMhMaterialVfxWaveLocal__disclosure,CBMhSky2GBuffer,CBMhSky2PS,CBMhSky2Sun,CBMhSky2VS,CBMhSkyGBuffer,CBMhSkyLpPS,CBMhSkyPS,CBMhSkyVS,CBModel,CBMotionBlur,CBMotionBlurReconstruction,CBNewDOFFilter,CBNewDOFFilter2,CBNormalMerge,CBNormalRecalc,CBOutline,CBPartialColor,CBPick,CBPrimCopyState,CBPrimGpuSystem,CBPrimitive,CBPrimitiveDebug,CBPrimitiveEx,CBPrimitiveMetaDataOcclusion,CBPrimitivePick,CBPrimMaterialOffset,CBPrimSystem,CBPrimVertexOffset,CBRadialBlurFilter,CBRadialBlurFunction,CBRenderFrame,CBResample,CBROPTest,CBScreen,CBSHDiffuse,CBSky,CBSpeedTree,CBSpeedTreeCollision__disclosure,CBSpeedTreeGlobalWind,CBSpeedTreeGlobalWindPF,CBSpeedTreeLocalWind,CBSpeedTreeLocalWindPF,CBSpeedTreePrimitiveInfo,CBSpeedTreeSystem,CBSSLR,CBSSSSS,CBSSSSS_Profile,CBStarrySky,CBSystem,CBSystemColor,CBTest,CBTestLight,CBToneMapping,CBToneMappingSdrSim,CBTubeLight,CBViewFrustum,CBViewProjection,CBVignetting,CBVR_Debug,CBVRCommon,CBVRCompute,CBVRFilter,CBVRGaussian,CBVRRecompute,CBVRVolumeParams,CBWater,CBWaterCustom,CBWaterDebug,CBWaterMaterial,CBWaterModel,CBWaterPick,CBWaterWave,CBWaterWaveMaterial,tAddNormalMap__disclosure,tAddNormalMaskMap__disclosure,tAerosolOpticalDepthMap,tailColor,tAlbedoBlendMap__disclosure,tAlbedoBlendMapB__disclosure,tAlbedoBlendMapG__disclosure,tAlbedoBlendMapR__disclosure,tAlbedoExtendMap__disclosure,tAlbedoMap__disclosure,tAlbedoOverMap__disclosure,tAlbedoUniqueMap__disclosure,tAlphaMap,tAlphaMap__disclosure,tAmbientOccluder,tApproximateDepthMapOutput,tAq>,targetPos,tAtmosphereOpticalDepthMap,tBaseMap,tBaseMaps,tBlendMap,tBlurTarget,tbr`,tBroadAreaShadowMap,tCbr,tCheckerDepth,tChroma,tColorFilter0,tColorFilter1,tColorFilterTable,tColorMaskMap__disclosure,tColorTargetUAV,tCombinedTemporalMap,tCubeMap,tCubeMap__disclosure,tDecalCubeMap,tDecalFlowMap,tDensityMap,tDepthApproximateZMap,tDepthMap,tDepthMapOutput,tDepthMipMapTarget0,tDepthMipMapTarget1,tDepthMipMapTarget2,tDepthMipMapTarget3,tDepthTargetUAV,tDetailEmissiveMap__disclosure,tDetailMapA__disclosure,tDetailMapB__disclosure,tDetailMapC__disclosure,tDetailMapD__disclosure,tDetailNormalBlendMap__disclosure,tDetailNormalMap__disclosure,tDisplacementMap__disclosure,tDitherMap,tDOFMap,tEffectDensity,tEmissiveBlendMap__disclosure,tEmissiveMap__disclosure,tEmissiveMapB__disclosure,tEmissiveMapG__disclosure,tEmissiveMapR__disclosure,texproj_mat,texSampler,tFaceMayuMap__disclosure,tFaceNormalMap__disclosure,tFacePaintMap__disclosure,tFilterTempMap1,tFilterTempMap2,tFinalLuminance,tFinalTransmittance,tFlowMap__disclosure,tFogTable,tFogVolumeMap,tFullSSShadow,tFurMap__disclosure,tFurMaskMap__disclosure,tFurNormalMap__disclosure,tFurVelocityMap__disclosure,tFxMap__disclosure,tG b,tGBuffer0,tGBuffer1,tGBuffer2,tGBuffer3,tGBuffer4,tGBuffer5,tGBufferDepthMap,tGI_IrradianceMapUAV,tGlobalCubeOnly,tGUIAlphaMap,tGUIBaseMap,tGUIBlendMap,tGUIEdgeMap,tGUIEmissiveMap,tGUIFadeMap,tGUINoiseMap,tGUINormalMap,tHeight,tHeightMap,thickness,tHistory,tHmL,tHoldout,tHoldoutDepth,tHTileTexture,tHTileTextureUAV,tI*	,tileDepth,tileLighting,tileMultiList,tileSingleList,tileUnused,tiling,tInput,tIRMInputCube,tIRMInputCube2,tJ#l,tK[Y,tLightProbesShadowMap,tLuma,tLuminance,tLuminanceRecompute,tLUT3DBlendMap,tLUT3DMap0,tLUT3DMap1,tLUT3DMap2,tMaskMap__disclosure,tMaterialBlendMap__disclosure,tMipFogMain,tMipFogTable,tMipFogTarget,tMipMapOutput,tMipMapTarget0,tMipMapTarget1,tMipMapTarget2,tMipMapTarget3,tNeighborMax,tNormalBlendMap__disclosure,tNormalBlendMapB__disclosure,tNormalBlendMapG__disclosure,tNormalBlendMapR__disclosure,tNormalMap__disclosure,tOcclusionMap,tOpacityBlendMap__disclosure,tOpacityMap__disclosure,totalTime,tOutlineObjectDepthMap,tOutlineObjectMap,tOutputCubeIRM,tPaintKzMap__disclosure,tPaintPbMap__disclosure,tPanoramaMap__disclosure,tPartsMaskMap__disclosure,tPatternMap__disclosure,tPrecomputedBRDFMap,tPrecomputedMieOutput,tPrecomputedMieSRV,tPrecomputedRayleighOutput,tPrecomputedRayleighSRV,tPrevGBufferID,tPrimAlbedoMap,tPrimAlphaMask,tPrimaryProjection,tPrimaryShadow,tPrimCubeMap,tPrimDepthMap,tPrimNormalMap,tPrimSceneDepthMap,tPrimSceneTex,tPrimSceneTexDownSample,tqaY`,tr@u(,transparency,tReductionDepthMap,tRefractionMap,tRefractionMaskMap__disclosure,tRMTBlendMap__disclosure,tRMTBlendMapB__disclosure,tRMTBlendMapG__disclosure,tRMTBlendMapR__disclosure,tRMTMap__disclosure,tRWCbr,tRWHeightMap,tRWNeighborMax,tRWTexture1,tRWTexture2,tRWTexture3,tRWTexture4,tRWTileMax,tRWTileMaxHorizontal,tryA>,tSceneEnvMap,tShadowMap,tSHDiffuse,tSkinMap__disclosure,tSkyAlphaMap,tSkyBaseMap,tSkyBlendAlphaMap,tSkyBlendBaseMap,tSkyBlendCloudMap0,tSkyBlendCloudMap1,tSkyBlendCloudMap2,tSkyBlendCloudMap3,tSkyBlendCloudRegionMap,tSkyBlendCloudsSideMap,tSkyBlendCloudsTopMap0,tSkyBlendCloudsTopMap1,tSkyBlendMap,tSkyBlendSunRegionMap,tSkyCloudMap0,tSkyCloudMap1,tSkyCloudMap2,tSkyCloudMap3,tSkyCloudRegionMap,tSkyCloudsSideMap,tSkyCloudsTopMap0,tSkyCloudsTopMap1,tSkyCurveMap,tSkyMap,tSkyStarrySkyMap,tSkySunAlphaMap,tSkySunLightMaskMap,tSkySunMap,tSkySunMaskMap,tSkySunRegionMap,tSkyTempSunAlphaMap,tSphereMap__disclosure,tSplashMap__disclosure,tSpotProjection,tSrcMap,tSrcMap2,tSSAO,tSSLR_BlurredMipMap,tSSLR_ResolveMapUAV,tSSLR_TemporalMapUAV,tSSLRTraceMap,tSSLRTraceMapUAV,tSSShadowBlurMap,tSSShadowMap,tSSSSSMap,tTemporalMap,tTexture,tTiledDeferredNumber,tTiledDeferredOutput,tTileMax,tTileMaxHorizontal,tToneCurveMap,tTranslucencyMap__disclosure,tTransmittance,tTransmittanceRecompute,tTransparentDensity,tTubeLightTexture0,tTubeLightTexture1,tTubeLightTexture2,tTubeLightTexture3,tTurbulenceVolume0,tTurbulenceVolume1,tTurbulenceVolume2,tTurbulenceVolume3,tTurbulenceVolume4,tTurbulenceVolume5,tTurbulenceVolume6,tTurbulenceVolume7,tUpsampledTexture,tVertexNormalMap__disclosure,tVertexPositionMap__disclosure,tVertexTangentMap__disclosure,tVfxNormalBlend,tVoltexMap__disclosure,tVolumeBlendDepthMap,tVolumeFinalLuminance,tVolumeFinalTransmittance,tVolumeMap,tVolumeTex0,tVolumeTex1,tVolumeTex2,tVolumeTex3,tw`:,tWaterAlbedo,tWaterBaseColor,tWaterBaseDepth,tWaterCaustics,tWaterCausticsMap,tWaterCubemap0,tWaterCubemap1,tWaterCubeMapA,tWaterCubeMapB,tWaterCustomAlbedoMap,tWaterCustomAlphaMap,tWaterCustomCubeMap,tWaterCustomDetailNormalMap,tWaterCustomEmissiveMap,tWaterCustomFlowMap,tWaterCustomNormalMap,tWaterCustomProjectionNormalMap,tWaterCustomRMTMap,tWaterNoise,tWaterNormal,tWaterNormal2,tWaterNormalA,tWaterNormalB,tWaterReflectionColor,tWaterReflectionDepth,tWaterRoughness,tWaterWhitecap,twxo,typeAndDivision,tza4W,tzFG";
+
+uint createJamcrc(char name[]){
+    local uchar result[5];
+    local uint a1;
+    local uint a2;
+    local uint a3;
+    local uint a4;
+    ChecksumAlgArrayBytes(CHECKSUM_CRC32,result,name,Strlen(name),"",-1,-1);
+    a1 = result[0];
+    a2 = result[1];
+    a3 = result[2];
+    a4 = result[3];
+    return 0xFFFFFFFF ^ ((a1<<24) | (a2<<16) | (a3<< 8) | (a4));
+}
+
+local int MAX_HASH_LENGTH=2000;
+local int hashes[MAX_HASH_LENGTH]<format=hex>;
+local int starts[MAX_HASH_LENGTH];
+local int lengths[MAX_HASH_LENGTH];
+local int idx1 = 1000;
+local int Hidx = 0;
+local char possibleStringsTmp[] = possibleStrings;
+local char name[];
+local int crcTestLen;
+local uint64 jamcrc<format=hex>;
+starts[0] = 0;
+while(idx1>0){
+    idx1 = Strchr(possibleStringsTmp,',');
+    //local int idx2 = Strchr(StrDel(possibleStrings,0,idx1+1),',');
+    //local int crcTestLen = ChecksumAlgArrayBytes(CHECKSUM_CRC32,result,"CB_BGTexture",12,"",0x04C11DB7,-1);
+    name = StrDel(possibleStringsTmp,idx1,Strlen(possibleStringsTmp));
+    lengths[Hidx] = Strlen(name);
+    hashes[Hidx] = createJamcrc(name);
+    starts[Hidx+1] = starts[Hidx]+idx1+1;
+    possibleStringsTmp =  StrDel(possibleStringsTmp,0,idx1+1);
+    Hidx++;
+    /*if(Hidx==2){
+        break;
+    }*/
+}
+MAX_HASH_LENGTH = Hidx;
+
 struct UnknS2;
 struct UnknS2{
     ubyte type;
     ubyte unkn1;
     ubyte unkn2;
     ubyte unkn3;
-    uint32 x;
+    uint32 x<format=hex>;
     //not so shure if this is correct
     uint texIdx;
     uint unkn5;
@@ -99,10 +143,24 @@ string ReadHeader(Header& h){
 Header head<bgcolor=0x0000ff,read=ReadHeader>;
 Texture textures[head.textureCount]<read=ReadTexture,bgcolor=0xff0000>;
 
+
+string translate(uint32 partialHash){
+    string s = "";
+    for(i=0;i<MAX_HASH_LENGTH;i++){
+        if((hashes[i] & 0xFFFFF) == partialHash){
+            string r = StrDel(possibleStrings,0,starts[i]);
+            return StrDel(r,lengths[i],Strlen(r));
+        }
+    }
+	return s;
+}
 string readUnknS2(UnknS2 &v){
     string s;
     string t = "";
     string type = "";
+    string translation = "";
+	//part of a CRC-32/JAMCRC-hash of the name for example tAlbedoMap__disclosure (found in a Shaderfile inside ShaderPackage.sdf)
+	local uint32 partialHash = v.x >> 12;
     if(v.texIdx-1<head.textureCount){
         t += textures[v.texIdx-1].path;
     }
@@ -110,10 +168,17 @@ string readUnknS2(UnknS2 &v){
         type = "texture";
     }
     if(v.type == 1){
+        type = "sampler";
+		t = "";
+    }
+    if(v.type == 0){
         type = "cbuffer";
 		t = "";
     }
-    SPrintf( s, "%s: %08x # %04d # %s",type,v.x,v.texIdx,t);
+   	translation = translate(partialHash);
+	
+
+    SPrintf( s, "%s: %s %08x # %08x # %04d # %s",type,translation,partialHash,v.x,v.texIdx,t);
     return s;
 }
 
