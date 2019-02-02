@@ -16,8 +16,8 @@ string filename;
 int shaderPos[cnt];
 int shaderLength[cnt];
 for(i=0;i<cnt;i++){
-    shaderPos[i] = shaderData[i].pos;
-    shaderLength[i] = shaderData[i].length;
+    shaderPos[i] = shaderDatas.shaderData[i].pos;
+    shaderLength[i] = shaderDatas.shaderData[i].length;
 }
 int filenum = GetFileNum();
 for(i=0;i<cnt;i++){
