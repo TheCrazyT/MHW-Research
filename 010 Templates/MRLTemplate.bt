@@ -12,7 +12,7 @@
 //------------------------------------------------
 struct UnknS2;
 struct UnknS2{
-    ubyte unkn;
+    ubyte type;
     ubyte unkn1;
     ubyte unkn2;
     ubyte unkn3;
@@ -102,10 +102,18 @@ Texture textures[head.textureCount]<read=ReadTexture,bgcolor=0xff0000>;
 string readUnknS2(UnknS2 &v){
     string s;
     string t = "";
+    string type = "";
     if(v.texIdx-1<head.textureCount){
         t += textures[v.texIdx-1].path;
     }
-    SPrintf( s, "%08x # %04d # %s",v.x,v.texIdx,t);
+    if(v.type == 2){
+        type = "texture";
+    }
+    if(v.type == 1){
+        type = "cbuffer";
+		t = "";
+    }
+    SPrintf( s, "%s: %08x # %04d # %s",type,v.x,v.texIdx,t);
     return s;
 }
 
