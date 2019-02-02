@@ -169,6 +169,15 @@ string readBlock(MeshBlock &b){
 string readBlockRef(BlockRef &b){
     return readBlock(b.b);
 }
+string readShaderString(short s){
+	string str;
+    if(s<0){
+		SPrintf( str, "%d",s);
+        return str;
+    }
+	SPrintf( str, "%d  %s",s,shaderDatas.shaderData[s].text);
+    return str;
+}
 
 struct Head{
     uint32 tag<format=hex>;
@@ -221,11 +230,11 @@ struct MaterialHead{
 	uint32 unkn4;
 };
 struct Material{
-    short deferredShaderDataIdx;
-    short shaderDataIdx;
+    short deferredShaderDataIdx<read=readShaderString>;
+    short shaderDataIdx<read=readShaderString>;
     uint32 unkn3<format=hex>;
     short unkn4;
-    short shaderDataIdx2;
+    short shaderDataIdx2<read=readShaderString>;
     uint16 unknStruct2Idx;
     uint16 unkn7;
     uint32 name<read=readUnkn4>;
