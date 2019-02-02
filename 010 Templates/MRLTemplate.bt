@@ -164,14 +164,14 @@ string readUnknS2(UnknS2 &v){
     if(v.texIdx-1<head.textureCount){
         t += textures[v.texIdx-1].path;
     }
-    if(v.type == 2){
+    if((v.type & 0xF) == 2){
         type = "texture";
     }
-    if(v.type == 1){
+    if((v.type & 0xF) == 1){
         type = "sampler";
 		t = "";
     }
-    if(v.type == 0){
+    if((v.type & 0xF) == 0){
         type = "cbuffer";
 		t = "";
     }
