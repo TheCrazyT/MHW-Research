@@ -225,7 +225,7 @@ struct Material{
     short shaderDataIdx;
     uint32 unkn3<format=hex>;
     short unkn4;
-    short unkn5;
+    short shaderDataIdx2;
     uint16 unknStruct2Idx;
     uint16 unkn7;
     uint32 name<read=readUnkn4>;
