@@ -230,8 +230,8 @@ struct MaterialHead{
 	uint32 unkn4;
 };
 struct Material{
-    short deferredShaderDataIdx<read=readShaderString>;
-    short shaderDataIdx<read=readShaderString>;
+    short vertexShaderDataIdx<read=readShaderString>;
+    short pixelShaderDataIdx<read=readShaderString>;
     uint32 unkn3<format=hex>;
     short unkn4;
     short shaderDataIdx2<read=readShaderString>;
