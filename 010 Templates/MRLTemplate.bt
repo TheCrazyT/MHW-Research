@@ -123,107 +123,11 @@ struct UnknS3{
     float y;
     
 };
-typedef struct float4{
-	local uint pos<format=hex> = FTell();
-	if(pos%16>0){
-		FSeek(pos+(16-pos%16));
-	}
-    float a[4];
-};
-typedef struct float3{
-	/*local uint pos<format=hex> = FTell();
-	if(pos%16>0){
-		FSeek(pos+(16-pos%16));
-	}*/
-    float a[3];
-};
-typedef struct float2{
-	local uint pos<format=hex> = FTell();
-	if(pos%16>0){
-		FSeek(pos+(16-pos%16));
-	}
-    float a[2];
-};
-typedef int bool;
-struct CBMhMaterialFakeSphereLocal__disclosure{
-   float4 fBaseMapFactor__uiColor;    // Offset:    0 Size:    16
-   float3 fEmissiveMapFactor__uiColor;// Offset:   16 Size:    12
-   float fMetalic__uiUNorm;           // Offset:   28 Size:     4
-   float fRoughness__uiUNorm;         // Offset:   32 Size:     4
-   float fSpecular__uiUNorm;          // Offset:   36 Size:     4
-   float fSubSurfaceBlend__uiUNorm;   // Offset:   40 Size:     4
-   uint iSubSurfaceProfile;           // Offset:   44 Size:     4
-   float fDetailNormalBlend__uiUNorm; // Offset:   48 Size:     4
-   float4 fUVTransformA;              // Offset:   64 Size:    16
-   float4 fUVTransformB;              // Offset:   80 Size:    16
-   float fTranslucency__uiUNorm;      // Offset:   96 Size:     4
-   bool bForwardFog;                  // Offset:  100 Size:     4
-};
-struct CBMhMaterialNPCLocal__disclosure{
-   float4 fBaseMapFactor__uiColor;    // Offset:    0ize:    16
-   float3 fEmissiveMapFactor__uiColor;// Offset:   16ize:    12
-   float fMetalic__uiUNorm;           // Offset:   28ize:     4
-   float fRoughness__uiUNorm;         // Offset:   32ize:     4
-   float fSpecular__uiUNorm;          // Offset:   36ize:     4
-   float fSubSurfaceBlend__uiUNorm;   // Offset:   40ize:     4
-   int iSubSurfaceProfile;            // Offset:   44ize:     4
-   float fTranslucency__uiUNorm;      // Offset:   48ize:     4
-   bool bBaseColorEmissive;           // Offset:   52ize:     4
-   bool bBackFaceNormalFilp;          // Offset:   56ize:     4
-   float fAnimEmitMin;                // Offset:   60ize:     4
-   float fAnimEmitSpeed;              // Offset:   64ize:     4
-   bool bUseCMM;                      // Offset:   68ize:     4
-   float4 fAddColorA__uiColor;        // Offset:   80ize:    16
-   float4 fAddColorB__uiColor;        // Offset:   96ize:    16
-   float4 fAddColorC__uiColor;        // Offset:  112ize:    16
-   float4 fAddColorD__uiColor;        // Offset:  128ize:    16
-   float4 fFurParam__uiUNorm;         // Offset:  144ize:    16
-   float fFurTile;                    // Offset:  160ize:     4
-   float fFilmThickness__uiUNorm;     // Offset:  164ize:     4
-   float fFilmBlend__uiUNorm;         // Offset:  168ize:     4
-   float3 fEmissiveBlendColor__uiColor;// Offset:  176ize:    12
-   float fEmissiveBlendColorBlend__uiUNorm;// Offset:  188ize:     4
-   float3 fEmissiveBlendRimParam;     // Offset:  192ize:    12
-   float fDetailNormalBlend__uiUNorm; // Offset:  204ize:     4
-   float4 fUVTransformDetailNormal;   // Offset:  208ize:    16
-};
-struct CBMaterialCommon__disclosure{
-   bool bBypass;                      // Offset:    0ize:     4
-   bool bDecalMask;                   // Offset:    4ize:     4
-   bool bEmissive;                    // Offset:    8ize:     4
-   int iGBufferId;                   // Offset:   12ize:     4
-   int iOutlineId;                   // Offset:   16ize:     4
-};
-struct CBMhMaterialStdLocal__disclosure{
-   float4 fBaseMapFactor__uiColor;    // Offset:    0ize:    16
-   float3 fEmissiveMapFactor__uiColor;// Offset:   16ize:    12
-   float fMetalic__uiUNorm;           // Offset:   28ize:     4
-   float fRoughness__uiUNorm;         // Offset:   32ize:     4
-   float fSpecular__uiUNorm;          // Offset:   36ize:     4
-   float fSubSurfaceBlend__uiUNorm;   // Offset:   40ize:     4
-   int iSubSurfaceProfile;           // Offset:   44ize:     4
-   float fDetailNormalBlend__uiUNorm; // Offset:   48ize:     4
-   float4 fUVTransformA;              // Offset:   64ize:    16
-   float4 fUVTransformB;              // Offset:   80ize:    16
-   float4 fBaseMapModulation__uiUNorm;// Offset:   96ize:    16
-   float fTranslucency__uiUNorm;      // Offset:  112ize:     4
-   float3 fEmissiveBlendColor__uiColor;// Offset:  116ize:    12
-   float fEmissiveBlendColorBlend__uiUNorm;// Offset:  128ize:     4
-   float3 fEmissiveBlendRimParam;     // Offset:  132ize:    12
-   bool bSpecialBlend;                // Offset:  144ize:     4
-   float fFurNormalBlend__uiUNorm;    // Offset:  148ize:     4
-   float fFurHeight__uiUNorm;         // Offset:  152ize:     4
-   float fFurMapBlend__uiUNorm;       // Offset:  156ize:     4
-   float fFurEdgeBlend__uiUNorm;      // Offset:  160ize:     4
-   float fFurTile;                    // Offset:  164ize:     4
-   bool bFakeRefraction;              // Offset:  168ize:     4
-   float fRefraction__uiUNorm;        // Offset:  172ize:     4
-   float3 fWetBlendDir__uiDirection;  // Offset:  176ize:    12
-   float fWetBlendPlaneNormal__uiUNorm;// Offset:  188ize:     4
-   float3 fWetBlendOp;                // Offset:  192ize:    12
-   bool bWetNormalBlend;              // Offset:  204ize:     4
-   float2 fWetNormalBlendRange__uiUNorm;// Offset:  208ize:     8
-};
+
+
+
+#include "mhw_structures_generated.bt"
+
 struct MaterialA(int count){
     Material material[count]<read=ReadMaterial>;
 };
@@ -287,52 +191,29 @@ local uint i;
 local int j = 0;
 local int left = 0;
 local int cnt = 0;
-local int crcCBMhMaterialStdLocal__disclosure<format=hex> = createJamcrc("CBMhMaterialStdLocal__disclosure");
-local int crcCBMaterialCommon__disclosure<format=hex> = createJamcrc("CBMaterialCommon__disclosure");
-local int crcCBMhMaterialNPCLocal__disclosure = createJamcrc("CBMhMaterialNPCLocal__disclosure");
-local int crcCBMhMaterialFakeSphereLocal__disclosure = createJamcrc("CBMhMaterialFakeSphereLocal__disclosure");
 local uint oldpos;
 local uint sz;
-//for(i=0;i<head.textureCount;i++){
-    MaterialA material(head.materialCount)<bgcolor=0xffff00>;
-    for(i=0;i<head.materialCount;i++){
-        FSeek(material.material[i].startAddr);
-        cnt = (material.material[i].floatArrOff*8)/(sizeof(UnknS2));
-        UnknS2A unknS2(cnt)<bgcolor=0x00ffff>;
-        left = (material.material[i].matSize-material.material[i].floatArrOff*8)/4;
-        for(j=0;j<cnt;j++){
-            if((unknS2.unknS[j].type & 0xF)==0){
-				oldpos = FTell();
-                if((unknS2.unknS[j].x >> 12) == (crcCBMhMaterialStdLocal__disclosure & 0xFFFFF)){
-                    CBMhMaterialStdLocal__disclosure stddata<bgcolor=0x00ffaa,optimize=false>;
-					sz = FTell()-oldpos;
-                    left -= sz/4;
-                }else if((unknS2.unknS[j].x >> 12) == (crcCBMaterialCommon__disclosure & 0xFFFFF)){
-                    CBMaterialCommon__disclosure commondata<bgcolor=0x00ffaa,optimize=false>;
-					sz = FTell()-oldpos;
-                    left -= sz/4;
-                }else if((unknS2.unknS[j].x >> 12) == (crcCBMhMaterialNPCLocal__disclosure & 0xFFFFF)){
-                    CBMhMaterialNPCLocal__disclosure npcdata<bgcolor=0x00ffaa,optimize=false>;
-					sz = FTell()-oldpos;
-                    left -= sz/4;
-                }else if((unknS2.unknS[j].x >> 12) == (crcCBMhMaterialFakeSphereLocal__disclosure & 0xFFFFF)){
-                    CBMhMaterialFakeSphereLocal__disclosure fsdata<bgcolor=0x00ffaa,optimize=false>;
-					sz = FTell()-oldpos;
-                    left -= sz/4;
-                }else{
-                    break;
-                }
-				if(FTell() % 16>0){
-					left -= 16-FTell() % 16;
-					FSeek(FTell()+(16-FTell() % 16));
-				}
-            }
-        }
-        if(left>0){
-		   struct FloatArr{
-			    float floatVal[left]<bgcolor=0x00ffaa,optimize=false>;
-		    }floatArr;
+MaterialA material(head.materialCount)<bgcolor=0xffff00>;
+for(i=0;i<head.materialCount;i++){
+    FSeek(material.material[i].startAddr);
+    cnt = (material.material[i].floatArrOff*8)/(sizeof(UnknS2));
+    UnknS2A unknS2(cnt)<bgcolor=0x00ffff>;
+    left = (material.material[i].matSize-material.material[i].floatArrOff*8)/4;
+    for(j=0;j<cnt;j++){
+        if((unknS2.unknS[j].type & 0xF)==0){
+			oldpos = FTell();
+			createClassByHash(unknS2.unknS[j].x >> 12);
+			sz = FTell()-oldpos;
+			left -= sz/4;
+			if(FTell() % 16>0){
+				left -= 16-FTell() % 16;
+				FSeek(FTell()+(16-FTell() % 16));
+			}
         }
     }
-    //UnknS3A unknS3(head.unknS2Count/2);
-//}
+    if(left>0){
+	   struct FloatArr{
+			float floatVal[left]<bgcolor=0x00ffaa,optimize=false>;
+		}floatArr;
+    }
+}
