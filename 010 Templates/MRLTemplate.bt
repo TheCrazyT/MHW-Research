@@ -54,8 +54,8 @@ while(idx1>0){
 }
 MAX_HASH_LENGTH = Hidx;
 
-struct UnknS2;
-struct UnknS2{
+struct ResBind;
+struct ResBind{
     ubyte type;
     ubyte unkn1;
     ubyte unkn2;
@@ -107,22 +107,6 @@ string ReadMaterial(Material& v){
     return s;
 }
 
-struct UnknS2_2{
-    ubyte unkn1;
-    ubyte unkn2;
-    ubyte unkn3;
-    ubyte unkn4;
-    ubyte unkn5;
-    ubyte unkn6;
-    ubyte unkn7;
-    uint unkn8;
-    uint unkn9;
-};
-struct UnknS3{
-    float x;
-    float y;
-    
-};
 
 
 
@@ -131,11 +115,8 @@ struct UnknS3{
 struct MaterialA(int count){
     Material material[count]<read=ReadMaterial>;
 };
-struct UnknS2A(int count){
-    UnknS2 unknS[count]<optimize=false,read=readUnknS2>;
-};
-struct UnknS3A(int count){
-    UnknS3 unknS[count];
+struct ResBindA(int count){
+    ResBind resBind[count]<optimize=false,read=readResBind>;
 };
 string ReadTexture(Texture& t){
     return t.path;
@@ -159,7 +140,7 @@ string translate(uint32 partialHash){
     }
 	return s;
 }
-string readUnknS2(UnknS2 &v){
+string readResBind(ResBind &v){
     string s;
     string t = "";
     string type = "";
@@ -196,13 +177,13 @@ local uint sz;
 MaterialA material(head.materialCount)<bgcolor=0xffff00>;
 for(i=0;i<head.materialCount;i++){
     FSeek(material.material[i].startAddr);
-    cnt = (material.material[i].floatArrOff*8)/(sizeof(UnknS2));
-    UnknS2A unknS2(cnt)<bgcolor=0x00ffff>;
+    cnt = (material.material[i].floatArrOff*8)/(sizeof(ResBind));
+    ResBindA resBinds(cnt)<bgcolor=0x00ffff>;
     left = (material.material[i].matSize-material.material[i].floatArrOff*8)/4;
     for(j=0;j<cnt;j++){
-        if((unknS2.unknS[j].type & 0xF)==0){
+        if((resBinds.resBind[j].type & 0xF)==0){
 			oldpos = FTell();
-			createClassByHash(unknS2.unknS[j].x >> 12);
+			createClassByHash(resBinds.resBind[j].x >> 12);
 			sz = FTell()-oldpos;
 			left -= sz/4;
 			if(FTell() % 16>0){
