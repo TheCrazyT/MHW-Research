@@ -124,12 +124,24 @@ struct UnknS3{
     
 };
 typedef struct float4{
+	local uint pos<format=hex> = FTell();
+	if(pos%16>0){
+		FSeek(pos+(16-pos%16));
+	}
     float a[4];
 };
 typedef struct float3{
+	/*local uint pos<format=hex> = FTell();
+	if(pos%16>0){
+		FSeek(pos+(16-pos%16));
+	}*/
     float a[3];
 };
 typedef struct float2{
+	local uint pos<format=hex> = FTell();
+	if(pos%16>0){
+		FSeek(pos+(16-pos%16));
+	}
     float a[2];
 };
 typedef int bool;
@@ -279,6 +291,8 @@ local int crcCBMhMaterialStdLocal__disclosure<format=hex> = createJamcrc("CBMhMa
 local int crcCBMaterialCommon__disclosure<format=hex> = createJamcrc("CBMaterialCommon__disclosure");
 local int crcCBMhMaterialNPCLocal__disclosure = createJamcrc("CBMhMaterialNPCLocal__disclosure");
 local int crcCBMhMaterialFakeSphereLocal__disclosure = createJamcrc("CBMhMaterialFakeSphereLocal__disclosure");
+local uint oldpos;
+local uint sz;
 //for(i=0;i<head.textureCount;i++){
     MaterialA material(head.materialCount)<bgcolor=0xffff00>;
     for(i=0;i<head.materialCount;i++){
@@ -288,23 +302,30 @@ local int crcCBMhMaterialFakeSphereLocal__disclosure = createJamcrc("CBMhMateria
         left = (material.material[i].matSize-material.material[i].floatArrOff*8)/4;
         for(j=0;j<cnt;j++){
             if((unknS2.unknS[j].type & 0xF)==0){
+				oldpos = FTell();
                 if((unknS2.unknS[j].x >> 12) == (crcCBMhMaterialStdLocal__disclosure & 0xFFFFF)){
                     CBMhMaterialStdLocal__disclosure stddata<bgcolor=0x00ffaa,optimize=false>;
-                    left -=sizeof(CBMhMaterialStdLocal__disclosure)/4;
+					sz = FTell()-oldpos;
+                    left -= sz/4;
                 }else if((unknS2.unknS[j].x >> 12) == (crcCBMaterialCommon__disclosure & 0xFFFFF)){
                     CBMaterialCommon__disclosure commondata<bgcolor=0x00ffaa,optimize=false>;
-                    left -=sizeof(CBMaterialCommon__disclosure)/4;
+					sz = FTell()-oldpos;
+                    left -= sz/4;
                 }else if((unknS2.unknS[j].x >> 12) == (crcCBMhMaterialNPCLocal__disclosure & 0xFFFFF)){
                     CBMhMaterialNPCLocal__disclosure npcdata<bgcolor=0x00ffaa,optimize=false>;
-                    left -=sizeof(CBMhMaterialNPCLocal__disclosure)/4;
+					sz = FTell()-oldpos;
+                    left -= sz/4;
                 }else if((unknS2.unknS[j].x >> 12) == (crcCBMhMaterialFakeSphereLocal__disclosure & 0xFFFFF)){
                     CBMhMaterialFakeSphereLocal__disclosure fsdata<bgcolor=0x00ffaa,optimize=false>;
-                    left -=sizeof(CBMhMaterialFakeSphereLocal__disclosure)/4;
+					sz = FTell()-oldpos;
+                    left -= sz/4;
                 }else{
                     break;
                 }
-				left -= 16-FTell() % 16;
-				FSeek(FTell()+(16-FTell() % 16));
+				if(FTell() % 16>0){
+					left -= 16-FTell() % 16;
+					FSeek(FTell()+(16-FTell() % 16));
+				}
             }
         }
         if(left>0){
