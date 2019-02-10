@@ -33,7 +33,7 @@ string readRB(RB& v){
     return readString(v.dwNameOffset);
 }
 string readString(uint spos){
-    string text = ReadString(D3D10_RDEF_Header.pos+spos);
+    string text = ReadString(D3D11_RDEF_Header.pos+spos);
     string res;
     SPrintf(res,"%d %s",spos,text);
     return res;
