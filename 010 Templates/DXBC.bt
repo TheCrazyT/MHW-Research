@@ -47,6 +47,7 @@ DWORD TO_DWORD(char s[]){
     return (d<<24)|(c<<16)|(b<<8)|(a);
 }
 local DWORD RDEF<format=hex> = TO_DWORD("RDEF");
+SetBackColor(cBlue);
 struct
 {
     DWORD dwMagicNumber<format=hex>;    ///< A FourCC value. Always set to "DXBC".
@@ -59,14 +60,18 @@ struct
 DWORD dwChunkTable[D3D10_ShaderObjectHeader.dwNumChunks]<format=hex>;
 
 local int i;
+local int chpos;
 for(i=0;i<D3D10_ShaderObjectHeader.dwNumChunks;i++){
+    SetBackColor(cRed);
     /// The per-chunk header for chunks within a D3D10 shader object.
     struct
     {
         DWORD dwChunkType<format=hex>;      ///< A FourCC value identifying the chunk type.
-        DWORD dwChunkDataSize;  ///< The size of the chunk-data i.e. the size not including the size of the chunk header.
+        DWORD dwChunkDataSize;              ///< The size of the chunk-data i.e. the size not including the size of the chunk header.
     } D3D10_ChunkHeader;
+    chpos = FTell();
     if(D3D10_ChunkHeader.dwChunkType == RDEF){
+        SetBackColor(cPurple);
         /// The header for "RDEF" Resource DEFinition chunks.
         struct
         {
@@ -78,13 +83,15 @@ for(i=0;i<D3D10_ShaderObjectHeader.dwNumChunks;i++){
             DWORD dwVersion;              ///< The version of the shader where the hiword = the shader type & the loword = the shader model.
             DWORD dwCompilerFlags;        ///< The flags passed to the D3D10 HLSL compiler.
             DWORD dwCreatorOffset;        ///< The offset from the start of the RDEF chunk data to the Creator string.
-        } D3D10_RDEF_Header;
+            DWORD dwMagic;                ///< Magic Number - 'R', 'D', '1', '1'.
+            DWORD dwReserved[7];          ///< Unknown.
+        } D3D11_RDEF_Header;
         local int j;
         local int j2;
         local int rpos;
         local int tpos;
-        FSeek(D3D10_RDEF_Header.pos+D3D10_RDEF_Header.dwConstBufferOffset);
-        for(j=0;j<D3D10_RDEF_Header.dwConstantBuffers;j++){
+        FSeek(D3D11_RDEF_Header.pos+D3D11_RDEF_Header.dwConstBufferOffset);
+        for(j=0;j<D3D11_RDEF_Header.dwConstantBuffers;j++){
                /// A per constant-buffer structure in the RDEF chunk.
                 struct CB
                 {
@@ -95,7 +102,7 @@ for(i=0;i<D3D10_ShaderObjectHeader.dwNumChunks;i++){
                     DWORD dwType;                            ///< The type of the constant-buffer.
                     DWORD dwFlags;                         ///< Flags. See D3D10_SHADER_CBUFFER_FLAGS.
                     rpos = FTell();
-                    FSeek(D3D10_RDEF_Header.pos+D3D10_ConstantBuffer.dwOffset);
+                    FSeek(D3D11_RDEF_Header.pos+D3D10_ConstantBuffer.dwOffset);
                     /// A per constant structure in the RDEF chunk.
                     struct Constant
                     {
@@ -107,7 +114,7 @@ for(i=0;i<D3D10_ShaderObjectHeader.dwNumChunks;i++){
                         DWORD dwDefaultValue;                  ///< The default value of the constant.
                         DWORD dwReserved[4];                   ///< Unknown.
                         tpos = FTell();
-                        FSeek(D3D10_RDEF_Header.pos+dwTypeOffset);
+                        FSeek(D3D11_RDEF_Header.pos+dwTypeOffset);
                         /// A structure defining the type of variables. Used in the RDEF chunk to define the type of constants.
                         struct Type
                         {
@@ -129,15 +136,15 @@ for(i=0;i<D3D10_ShaderObjectHeader.dwNumChunks;i++){
                 } D3D10_ConstantBuffer<read=readCB>;
                 
         }
-        FSeek(D3D10_RDEF_Header.pos+D3D10_RDEF_Header.dwBoundResourceOffset);
-        for(j=0;j<D3D10_RDEF_Header.dwBoundResources;j++){
+        FSeek(D3D11_RDEF_Header.pos+D3D11_RDEF_Header.dwBoundResourceOffset);
+        for(j=0;j<D3D11_RDEF_Header.dwBoundResources;j++){
            /// A per bound-resource structure in the RDEF chunk.
             struct RB
             {
-                DWORD dwNameOffset<read=readString>; ///< The offset from the start of the RDEF chunk data to the resource name string.
-                DWORD dwType;          ///< The type of data in the resource.
-                DWORD ReturnType; ///< For textures the return type otherwise 0.
-                DWORD Dimension;         ///< The number of dimensions of the data in the resource.
+                DWORD dwNameOffset<read=readString>;   ///< The offset from the start of the RDEF chunk data to the resource name string.
+                DWORD dwType;                          ///< The type of data in the resource.
+                DWORD ReturnType;                      ///< For textures the return type otherwise 0.
+                DWORD Dimension;                       ///< The number of dimensions of the data in the resource.
                 DWORD dwNumSamples;                    ///< For multisampled textures the multisampled otherwise 0
                 DWORD dwBindPoint;                     ///< The starting bind-point.
                 DWORD dwBindCount;                     ///< The number of bind-points for arrays(contiguous).
@@ -145,20 +152,22 @@ for(i=0;i<D3D10_ShaderObjectHeader.dwNumChunks;i++){
             } D3D10_ResourceBinding<read=readRB>;
         }
     }
+    FSeek(chpos+D3D10_ChunkHeader.dwChunkDataSize);
     continue;
-    /*/// The header for "RDEF" Resource DEFinition chunks.
-    typedef struct
-    {
-        DWORD dwConstantBuffers;      ///< The number of constant-buffers.
-        DWORD dwConstBufferOffset;    ///< The offset from the start of the RDEF chunk data to the first D3D10_ConstantBuffer structure.
-        DWORD dwBoundResources;       ///< The number of bound resources.
-        DWORD dwBoundResourceOffset;  ///< The offset from the start of the RDEF chunk data to the first D3D10_ResourceBinding structure.
-        DWORD dwVersion;              ///< The version of the shader where the hiword = the shader type & the loword = the shader model.
-        DWORD dwCompilerFlags;        ///< The flags passed to the D3D10 HLSL compiler.
-        DWORD dwCreatorOffset;        ///< The offset from the start of the RDEF chunk data to the Creator string.
-        DWORD dwMagic;                ///< Magic Number - 'R', 'D', '1', '1'.
-        DWORD dwReserved[7];          ///< Unknown.
-    } D3D11_RDEF_Header;*/
+    /*
+        /// The header for "RDEF" Resource DEFinition chunks.
+        struct
+        {
+            local uint pos = FTell();
+            DWORD dwConstantBuffers;      ///< The number of constant-buffers.
+            DWORD dwConstBufferOffset;    ///< The offset from the start of the RDEF chunk data to the first D3D10_ConstantBuffer structure.
+            DWORD dwBoundResources;       ///< The number of bound resources.
+            DWORD dwBoundResourceOffset;  ///< The offset from the start of the RDEF chunk data to the first D3D10_ResourceBinding structure.
+            DWORD dwVersion;              ///< The version of the shader where the hiword = the shader type & the loword = the shader model.
+            DWORD dwCompilerFlags;        ///< The flags passed to the D3D10 HLSL compiler.
+            DWORD dwCreatorOffset;        ///< The offset from the start of the RDEF chunk data to the Creator string.
+        } D3D10_RDEF_Header;
+    */
     
     
     
