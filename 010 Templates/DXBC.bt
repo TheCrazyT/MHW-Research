@@ -1,0 +1,262 @@
+//--------------------------------------
+//--- 010 Editor v6.0.1 Binary Template
+//
+// File:
+// Author:
+// File Mask: *.shdr
+// Revision:
+// Purpose:
+//--------------------------------------
+
+// Most stuff ported/stolen from https://github.com/GPUOpen-Tools/common-src-ShaderUtils/
+
+/// The top-level header for a D3D10 shader.
+struct CB;
+struct RB;
+struct Constant;
+struct Type;
+
+string readString(uint spos);
+
+string readType(Type& v){
+    return readString(v.dwNameOffset);
+}
+string readConstant(Constant& v){
+    string s;
+    SPrintf(s,"%s %s",readString(v.D3D10_Type.dwNameOffset),readString(v.dwNameOffset));
+    return s;
+}
+string readCB(CB& v){
+    return readString(v.dwNameOffset);
+}
+string readRB(RB& v){
+    return readString(v.dwNameOffset);
+}
+string readString(uint spos){
+    string text = ReadString(D3D10_RDEF_Header.pos+spos);
+    string res;
+    SPrintf(res,"%d %s",spos,text);
+    return res;
+}
+DWORD TO_DWORD(char s[]){
+    local DWORD a = s[0];
+    local DWORD b = s[1];
+    local DWORD c = s[2];
+    local DWORD d = s[3];
+    
+    return (d<<24)|(c<<16)|(b<<8)|(a);
+}
+local DWORD RDEF<format=hex> = TO_DWORD("RDEF");
+struct
+{
+    DWORD dwMagicNumber<format=hex>;    ///< A FourCC value. Always set to "DXBC".
+    DWORD dwCheckSum[4];                ///< A MD5-based (but with differences) checksum. See DXBCChecksum.h for further details.
+    DWORD dwReserved;                   ///< Unknown. Seems always to be 00000001.
+    DWORD dwSize;                       ///< The size of the shader object.
+    DWORD dwNumChunks;                  ///< The number of chunks in the shader object.
+} D3D10_ShaderObjectHeader;
+
+DWORD dwChunkTable[D3D10_ShaderObjectHeader.dwNumChunks]<format=hex>;
+
+local int i;
+for(i=0;i<D3D10_ShaderObjectHeader.dwNumChunks;i++){
+    /// The per-chunk header for chunks within a D3D10 shader object.
+    struct
+    {
+        DWORD dwChunkType<format=hex>;      ///< A FourCC value identifying the chunk type.
+        DWORD dwChunkDataSize;  ///< The size of the chunk-data i.e. the size not including the size of the chunk header.
+    } D3D10_ChunkHeader;
+    if(D3D10_ChunkHeader.dwChunkType == RDEF){
+        /// The header for "RDEF" Resource DEFinition chunks.
+        struct
+        {
+            local uint pos = FTell();
+            DWORD dwConstantBuffers;      ///< The number of constant-buffers.
+            DWORD dwConstBufferOffset;    ///< The offset from the start of the RDEF chunk data to the first D3D10_ConstantBuffer structure.
+            DWORD dwBoundResources;       ///< The number of bound resources.
+            DWORD dwBoundResourceOffset;  ///< The offset from the start of the RDEF chunk data to the first D3D10_ResourceBinding structure.
+            DWORD dwVersion;              ///< The version of the shader where the hiword = the shader type & the loword = the shader model.
+            DWORD dwCompilerFlags;        ///< The flags passed to the D3D10 HLSL compiler.
+            DWORD dwCreatorOffset;        ///< The offset from the start of the RDEF chunk data to the Creator string.
+        } D3D10_RDEF_Header;
+        local int j;
+        local int j2;
+        local int rpos;
+        local int tpos;
+        FSeek(D3D10_RDEF_Header.pos+D3D10_RDEF_Header.dwConstBufferOffset);
+        for(j=0;j<D3D10_RDEF_Header.dwConstantBuffers;j++){
+               /// A per constant-buffer structure in the RDEF chunk.
+                struct CB
+                {
+                    DWORD dwNameOffset<read=readString>;   ///< The offset from the start of the RDEF chunk data to the constant-buffer name string.
+                    DWORD dwVariables;                     ///< The number of constants in the constant-buffer.
+                    DWORD dwOffset;                        ///< The offset from the start of the RDEF chunk data to the first const in this buffer.
+                    DWORD dwSize;                          ///< The size of the constant-buffer.
+                    DWORD dwType;                            ///< The type of the constant-buffer.
+                    DWORD dwFlags;                         ///< Flags. See D3D10_SHADER_CBUFFER_FLAGS.
+                    rpos = FTell();
+                    FSeek(D3D10_RDEF_Header.pos+D3D10_ConstantBuffer.dwOffset);
+                    /// A per constant structure in the RDEF chunk.
+                    struct Constant
+                    {
+                        DWORD dwNameOffset<read=readString>;   ///< The offset from the start of the RDEF chunk data to the constant name string.
+                        DWORD dwStartOffset;                   ///< The offset of the constant within the constant-buffer.
+                        DWORD dwSize;                          ///< The size of the constant.
+                        DWORD dwFlags;                         ///< Shader-variable flags, see D3D10_SHADER_VARIABLE_FLAGS.
+                        DWORD dwTypeOffset;                    ///< The offset from the start of the RDEF chunk data to the D3D10_Type for this constant.
+                        DWORD dwDefaultValue;                  ///< The default value of the constant.
+                        DWORD dwReserved[4];                   ///< Unknown.
+                        tpos = FTell();
+                        FSeek(D3D10_RDEF_Header.pos+dwTypeOffset);
+                        /// A structure defining the type of variables. Used in the RDEF chunk to define the type of constants.
+                        struct Type
+                        {
+                            local uint pos<format=hex> = FTell();
+                            WORD wClass;                           ///< The variable class of the type. See D3D10_SHADER_VARIABLE_CLASS.
+                            WORD wType;                            ///< The variable type. See D3D10_SHADER_VARIABLE_TYPE.
+                            WORD wRows;                            ///< Number of rows in a matrix. 1 for other numeric types, 0 for other types.
+                            WORD wColumns;                         ///< Number of columns in a matrix. 1 for other numeric types, 0 for other types.
+                            WORD wElements;                        ///< Number of elements in an array; otherwise 0.
+                            WORD wMembers;                         ///< Number of members in the structure; otherwise 0.
+                            WORD wOffset;                          ///< Offset to something. Seems always to be 0.
+                            WORD wReserved;                        ///< Unknown. Seems always to be 0.
+                            DWORD dwReserved[4];                   ///< Unknown.
+                            DWORD dwNameOffset<read=readString>;   ///< The offset from the start of the RDEF chunk data to the constant name string.
+                        } D3D10_Type<read=readType>;
+                        FSeek(tpos);
+                    } D3D11_Constant[D3D10_ConstantBuffer.dwVariables]<optimize=false,read=readConstant>;
+                    FSeek(rpos);
+                } D3D10_ConstantBuffer<read=readCB>;
+                
+        }
+        FSeek(D3D10_RDEF_Header.pos+D3D10_RDEF_Header.dwBoundResourceOffset);
+        for(j=0;j<D3D10_RDEF_Header.dwBoundResources;j++){
+           /// A per bound-resource structure in the RDEF chunk.
+            struct RB
+            {
+                DWORD dwNameOffset<read=readString>; ///< The offset from the start of the RDEF chunk data to the resource name string.
+                DWORD dwType;          ///< The type of data in the resource.
+                DWORD ReturnType; ///< For textures the return type otherwise 0.
+                DWORD Dimension;         ///< The number of dimensions of the data in the resource.
+                DWORD dwNumSamples;                    ///< For multisampled textures the multisampled otherwise 0
+                DWORD dwBindPoint;                     ///< The starting bind-point.
+                DWORD dwBindCount;                     ///< The number of bind-points for arrays(contiguous).
+                DWORD dwFlags;                         ///< Flags. See D3D10_SHADER_INPUT_FLAGS.
+            } D3D10_ResourceBinding<read=readRB>;
+        }
+    }
+    continue;
+    /*/// The header for "RDEF" Resource DEFinition chunks.
+    typedef struct
+    {
+        DWORD dwConstantBuffers;      ///< The number of constant-buffers.
+        DWORD dwConstBufferOffset;    ///< The offset from the start of the RDEF chunk data to the first D3D10_ConstantBuffer structure.
+        DWORD dwBoundResources;       ///< The number of bound resources.
+        DWORD dwBoundResourceOffset;  ///< The offset from the start of the RDEF chunk data to the first D3D10_ResourceBinding structure.
+        DWORD dwVersion;              ///< The version of the shader where the hiword = the shader type & the loword = the shader model.
+        DWORD dwCompilerFlags;        ///< The flags passed to the D3D10 HLSL compiler.
+        DWORD dwCreatorOffset;        ///< The offset from the start of the RDEF chunk data to the Creator string.
+        DWORD dwMagic;                ///< Magic Number - 'R', 'D', '1', '1'.
+        DWORD dwReserved[7];          ///< Unknown.
+    } D3D11_RDEF_Header;*/
+    
+    
+    
+ 
+    /*
+        /// A per constant structure in the RDEF chunk.
+                    struct Constant
+                    {
+                        DWORD dwNameOffset<read=readString>;   ///< The offset from the start of the RDEF chunk data to the constant name string.
+                        DWORD dwStartOffset;                   ///< The offset of the constant within the constant-buffer.
+                        DWORD dwSize;                          ///< The size of the constant.
+                        DWORD dwFlags;                         ///< Shader-variable flags, see D3D10_SHADER_VARIABLE_FLAGS.
+                        DWORD dwTypeOffset;                    ///< The offset from the start of the RDEF chunk data to the D3D10_Type for this constant.
+                        DWORD dwDefaultValue;                  ///< The default value of the constant.
+                    } D3D10_Constant<read=readConstant>;
+    */
+    
+    /// A per constant structure in the RDEF chunk.
+    /*typedef struct
+    {
+        DWORD dwNameOffset;                    ///< The offset from the start of the RDEF chunk data to the constant name string.
+        DWORD dwStartOffset;                   ///< The offset of the constant within the constant-buffer.
+        DWORD dwSize;                          ///< The size of the constant.
+        DWORD dwFlags;                         ///< Shader-variable flags, see D3D10_SHADER_VARIABLE_FLAGS.
+        DWORD dwTypeOffset;                    ///< The offset from the start of the RDEF chunk data to the D3D10_Type for this constant.
+        DWORD dwDefaultValue;                  ///< The default value of the constant.
+        DWORD dwReserved[4];                   ///< Unknown.
+    } D3D11_Constant;*/
+    
+    
+    
+    /// The header for "ISGN" Input SiGNature & "OSGN" Output SiGNature chunks.
+    struct
+    {
+        DWORD dwSignatures;                    ///< The number of signatures.
+        DWORD dwReserved;                      ///< Unknown. Seems always to be 8.
+    } D3D10_xSGN_Header;
+    
+    /// A per signature structure in the ISGN & OSGN chunks.
+    struct
+    {
+        DWORD dwSemanticNameOffset;            ///< The offset from the start of the chunk data to the semantic name string.
+        DWORD dwSemanticIndex;                 ///< The semantic index. Used to differentiate different signatures that use the same semantic.
+        DWORD dwSystemValueType;               ///< The type of the system value. See D3D10_NAME.
+        DWORD dwComponentType;                 ///< The per-component type of the data. See D3D10_REGISTER_COMPONENT_TYPE.
+        DWORD dwRegister;                      ///< The register used for the data.
+        WORD  wMask;                           ///< A mask indicating which components of a register are used.
+        WORD  wPadding;                        ///< Padding the structure to DWORD divisible width.
+    } D3D10_Signature;
+    
+    /// The header for "SHDR" SHaDeR chunks.
+    struct
+    {
+        DWORD dwVersion;                       ///< The shader model of the shader.
+        DWORD dwTokenCount;                    ///< The number of DWORD tokens in the shader.
+    } D3D10_SHDR_Header;
+    
+    /// A structure defining the data held in the STAT chunk.
+    struct
+    {
+        UINT  InstructionCount;                ///< The number of emitted instructions.
+        UINT  TempRegisterCount;               ///< The number of temporary registers used.
+        UINT  DefCount;                        ///< The number of constant definitions.
+        UINT  DclCount;                        ///< The number of declarations (input + output).
+        UINT  FloatInstructionCount;           ///< The number of floating point arithmetic instructions used.
+        UINT  IntInstructionCount;             ///< The number of signed integer arithmetic instructions used.
+        UINT  UintInstructionCount;            ///< The number of unsigned integer arithmetic instructions used.
+        UINT  StaticFlowControlCount;          ///< The number of static flow control instructions used.
+        UINT  DynamicFlowControlCount;         ///< The number of dynamic flow control instructions used.
+        UINT  MacroInstructionCount;           ///< The number of macro instructions used.
+        UINT  TempArrayCount;                  ///< The number of temporary arrays used.
+        UINT  ArrayInstructionCount;           ///< The number of array instructions used.
+        UINT  CutInstructionCount;             ///< The number of cut instructions used.
+        UINT  EmitInstructionCount;            ///< The number of emit instructions used.
+        UINT  TextureNormalInstructions;       ///< The number of non-categorized texture instructions.
+        UINT  TextureLoadInstructions;         ///< The number of texture load instructions.
+        UINT  TextureCompInstructions;         ///< The number of texture comparison instructions.
+        UINT  TextureBiasInstructions;         ///< The number of texture bias instructions.
+        UINT  TextureGradientInstructions;     ///< The number of texture gradient instructions.
+        UINT  Reserved[10];                    ///< Unknown stats.
+    } D3D10_SHADER_STATS;
+}
+
+/*
+/// A structure describing an indexable temp register.
+typedef struct
+{
+    DWORD dwIndex;                         ///< The index of the register ie. x0, x1, etc.
+    DWORD dwSize;                          ///< The number of indexable elements within the array.
+    DWORD dwComponentCount;                ///< The number of components in each array element.
+} D3D10_IndexableTempRegister;
+
+/// A structure describing an global memory register.
+typedef struct
+{
+    DWORD dwRegister;                      ///< The operand coding of the register.
+    DWORD dwIndex;                         ///< The index of the register ie. g0, g1, etc.
+    DWORD dwStride;                        ///< The struct byte stride, 0 for raw memories.
+    DWORD dwCount;                         ///< The count of elements in the memory.
+} D3D10_GlobalMemoryRegister;
+*/

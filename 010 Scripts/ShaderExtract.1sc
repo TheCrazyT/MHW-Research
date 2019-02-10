@@ -15,10 +15,12 @@ int cnt=head.shaderCount;
 string filename;
 int shaderPos[cnt];
 int shaderLength[cnt];
-for(i=0;i<cnt;i++){
+for(i=0;i<cnt-1;i++){
     shaderPos[i] = shaderDatas.shaderData[i].pos;
     shaderLength[i] = shaderDatas.shaderData[i].length;
 }
+shaderPos[i] = shaderDatas.shaderDataShort.pos;
+shaderLength[i] = shaderDatas.shaderDataShort.length;
 int filenum = GetFileNum();
 for(i=0;i<cnt;i++){
     SPrintf( filename, "d:\\tmp\\shaders\\%d.shdr", i);

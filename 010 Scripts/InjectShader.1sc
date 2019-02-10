@@ -1,0 +1,20 @@
+const char SHADER_PACKAGE[] = "d:\\tmp\\shaders\\ShaderPackage.sdf";
+const char SHADER_TEMPLATE[] = "d:\\Backups_and_projects\\BlenderScripts\\MHW-Research\\010 Templates\\Shader.bt";
+int idx = FindOpenFile(SHADER_PACKAGE);
+if(idx==-1){
+	FileOpen(SHADER_PACKAGE);
+}
+int shaderIdx = InputNumber("Input shaderindex","Input shaderindex","0");
+char filename[] = InputOpenFileName("Input shader filename.","Shader (*.shdr)");
+
+idx = FindOpenFile(SHADER_PACKAGE);
+FileSelect(idx);
+
+int64 fs1 = FileSize();
+InsertFile(filename,fs1);
+RunTemplate(SHADER_TEMPLATE);
+int64 fs2 = FileSize()-fs1;
+
+shaderDatas.shaderData[shaderIdx].length = fs2;
+shaderDatas.shaderData[shaderIdx].pos    = fs1;
+RunTemplate(SHADER_TEMPLATE);

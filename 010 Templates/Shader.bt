@@ -15,6 +15,7 @@ struct UnknStructData;
 struct UnknStructDataSub;
 struct UnknStruct2Sub;
 struct ShaderData;
+struct ShaderDataShort;
 string readBlock(MeshBlock &b);
 string readSub(UnknStructDataSub &sub);
 string readUnkn4(uint64 unkn4);
@@ -121,6 +122,7 @@ string readShaderData(ShaderData &v){
     SPrintf( res, "%s",v.text );
     return res;
 }
+
 string readUnknStruct2(UnknStruct2Sub &v){
     string res ="";
     SPrintf( res, "%s",v.text );
@@ -188,14 +190,18 @@ struct Head{
     uint32 unkn2<format=hex>;
     uint32 blockCount;
     uint32 unknStruct2Count;
-    uint32 unkn3[4];
+    uint32 unknStruct3Count;
+    uint32 unknStruct4Count;
+    uint32 unkn3[2];
     uint32 unknStruct1Offset<format=hex>;
     uint32 unkn5<format=hex>;
     uint64 materialOffset<format=hex>;
     uint64 shaderOffset<format=hex>;
     uint64 blockOffset<format=hex>;
     uint64 unknStruct2Offset<format=hex>;
-    uint64 unkn6[3]<format=hex>;
+    uint64 unknStruct3Offset<format=hex>;
+    uint64 unknStruct4Offset<format=hex>;
+    uint64 unknStruct5Offset<format=hex>;
     uint64 textsOffset<format=hex>;
     uint64 unkn7;
 };
@@ -267,6 +273,19 @@ struct ShaderData{
 	ushort unkn9;
 	ushort unkn10;
 };
+struct ShaderDataShort{
+    uint64 pos<format=hex>;
+    uint32 length;
+    local uint32 oldpos = FTell();
+    FSeek(pos);
+    ubyte data[length]<bgcolor=0xaa00aa>;
+    FSeek(oldpos);
+    uint32 unkn2<format=hex>;
+    uint64 unkn3<format=hex>;
+    uint64 unkn4<format=hex>;
+    uint64 unkn5<format=hex>;
+    
+};
 Head head<optimize=false,bgcolor=0xff0000>;
 FSeek(head.unknStruct1Offset);
 uint64 unknStruct1[head.unknStruct1Count]<format=hex,bgcolor=0x00ffff>;
@@ -302,6 +321,58 @@ struct{
 // http://timjones.io/blog/archive/2015/09/02/parsing-direct3d-shader-bytecode
 FSeek(head.shaderOffset+0x10);
 struct{
-	ShaderData shaderData[head.shaderCount]<optimize=false,bgcolor=0xff00ff,read=readShaderData>;
+	ShaderData shaderData[head.shaderCount-1]<optimize=false,bgcolor=0xff00ff,read=readShaderData>;
+    ShaderDataShort shaderDataShort<optimize=false,bgcolor=0xff00ff>;
 } shaderDatas;
 
+FSeek(head.unknStruct3Offset);
+struct{
+    struct{
+        uint64 unkn1;
+        uint64 unkn2<format=hex>;
+        uint64 unknOffset3<format=hex>;
+    }unkn[head.unknStruct3Count];
+}unknStruct3<bgcolor=0x4400aa>;
+
+FSeek(head.unknStruct4Offset);
+struct{
+    struct{
+        uint64 unkn1;
+        uint64 unkn2<format=hex>;
+        uint64 unkn3<format=hex>;
+        uint64 unknOffset4<format=hex>;
+        uint64 unkn5<format=hex>;
+    }unkn[head.unknStruct4Count]<optimize=false>;
+    uint64 unkn<format=hex>;
+}unknStruct4<bgcolor=0x6600aa,optimize=false>;
+
+FSeek(head.unknStruct5Offset);
+struct{
+    uint64 unkn[180]<format=hex>;
+}unknStruct5<bgcolor=0x8800aa>;
+
+FSeek(unknStruct3.unkn[0].unknOffset3);
+struct{
+    local uint32 i;
+    for(i=0;i<head.unknStruct3Count;i++){
+        if(unknStruct3.unkn[i].unknOffset3!=0){
+            FSeek(unknStruct3.unkn[i].unknOffset3);
+            struct{
+                uint64 unkn1;
+            }unkn<bgcolor=0xaa00aa>;
+        }
+    }
+}unknStruct3_<optimize=false>;
+
+FSeek(unknStruct4.unkn[0].unknOffset4);
+struct{
+    local uint32 i;
+    for(i=0;i<head.unknStruct4Count;i++){
+        if(unknStruct4.unkn[i].unknOffset4!=0){
+            FSeek(unknStruct4.unkn[i].unknOffset4);
+            struct{
+                uint64 unkn1<format=hex>;
+            }unkn<bgcolor=0xcc00aa>;
+        }
+    }
+}unknStruct4_<optimize=false>;

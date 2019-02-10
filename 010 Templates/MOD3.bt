@@ -114,7 +114,7 @@ struct MODVertexes81f58067{
     byte normalX<read=readC8S>;
     byte normalY<read=readC8S>;
     byte normalZ<read=readC8S>;
-    ubyte u4;
+    byte normalW<read=readC8S>;
     byte tangentX<read=readC8S>;
     byte tangentY<read=readC8S>;
     byte tangentZ<read=readC8S>;
@@ -145,7 +145,7 @@ struct MODVertexBufferf637401c{
     byte normalX<read=readC8S>;
     byte normalY<read=readC8S>;
     byte normalZ<read=readC8S>;
-    ubyte u4;
+    byte normalW<read=readC8S>;
     byte tangentX<read=readC8S>;
     byte tangentY<read=readC8S>;
     byte tangentZ<read=readC8S>;
@@ -168,7 +168,7 @@ struct MODVertexBuffer3c730760{
     byte normalX<read=readC8S>;
     byte normalY<read=readC8S>;
     byte normalZ<read=readC8S>;
-    ubyte u4;
+    byte normalW<read=readC8S>;
     byte tangentX<read=readC8S>;
     byte tangentY<read=readC8S>;
     byte tangentZ<read=readC8S>;
