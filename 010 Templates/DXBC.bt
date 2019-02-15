@@ -14,12 +14,20 @@
 struct CB;
 struct RB;
 struct Constant;
+struct SubConstant;
 struct Type;
 
+
 string readString(uint spos);
+string readStringWithPos(uint spos);
 
 string readType(Type& v){
     return readString(v.dwNameOffset);
+}
+string readSubConstant(SubConstant& v){
+    string s;
+    SPrintf(s,"%s %s",readString(v.type.dwNameOffset),readString(v.dwNameOffset));
+    return s;
 }
 string readConstant(Constant& v){
     string s;
@@ -33,9 +41,15 @@ string readRB(RB& v){
     return readString(v.dwNameOffset);
 }
 string readString(uint spos){
-    string text = ReadString(D3D11_RDEF_Header.pos+spos);
-    string res;
-    SPrintf(res,"%d %s",spos,text);
+    local string text = ReadString(D3D11_RDEF_Header.pos+spos);
+    local string res;
+	res = text;
+    return res;
+}
+string readStringWithPos(uint spos){
+    local string text = ReadString(D3D11_RDEF_Header.pos+spos);
+    local string res;
+	SPrintf(res,"%d %s",spos,text);
     return res;
 }
 DWORD TO_DWORD(char s[]){
@@ -75,6 +89,7 @@ for(i=0;i<D3D10_ShaderObjectHeader.dwNumChunks;i++){
         /// The header for "RDEF" Resource DEFinition chunks.
         struct
         {
+            local uint chunkIdx = i;
             local uint pos = FTell();
             DWORD dwConstantBuffers;      ///< The number of constant-buffers.
             DWORD dwConstBufferOffset;    ///< The offset from the start of the RDEF chunk data to the first D3D10_ConstantBuffer structure.
@@ -90,12 +105,15 @@ for(i=0;i<D3D10_ShaderObjectHeader.dwNumChunks;i++){
         local int j2;
         local int rpos;
         local int tpos;
+        local int ttpos;
+        local int tttpos;
         FSeek(D3D11_RDEF_Header.pos+D3D11_RDEF_Header.dwConstBufferOffset);
         for(j=0;j<D3D11_RDEF_Header.dwConstantBuffers;j++){
                /// A per constant-buffer structure in the RDEF chunk.
                 struct CB
                 {
-                    DWORD dwNameOffset<read=readString>;   ///< The offset from the start of the RDEF chunk data to the constant-buffer name string.
+                    DWORD dwNameOffset<read=readStringWithPos>;   ///< The offset from the start of the RDEF chunk data to the constant-buffer name string.
+                    local string strName = readString(dwNameOffset);
                     DWORD dwVariables;                     ///< The number of constants in the constant-buffer.
                     DWORD dwOffset;                        ///< The offset from the start of the RDEF chunk data to the first const in this buffer.
                     DWORD dwSize;                          ///< The size of the constant-buffer.
@@ -106,7 +124,8 @@ for(i=0;i<D3D10_ShaderObjectHeader.dwNumChunks;i++){
                     /// A per constant structure in the RDEF chunk.
                     struct Constant
                     {
-                        DWORD dwNameOffset<read=readString>;   ///< The offset from the start of the RDEF chunk data to the constant name string.
+                        DWORD dwNameOffset<read=readStringWithPos>;   ///< The offset from the start of the RDEF chunk data to the constant name string.
+                        local string strName = readString(dwNameOffset);
                         DWORD dwStartOffset;                   ///< The offset of the constant within the constant-buffer.
                         DWORD dwSize;                          ///< The size of the constant.
                         DWORD dwFlags;                         ///< Shader-variable flags, see D3D10_SHADER_VARIABLE_FLAGS.
@@ -128,7 +147,22 @@ for(i=0;i<D3D10_ShaderObjectHeader.dwNumChunks;i++){
                             WORD wOffset;                          ///< Offset to something. Seems always to be 0.
                             WORD wReserved;                        ///< Unknown. Seems always to be 0.
                             DWORD dwReserved[4];                   ///< Unknown.
-                            DWORD dwNameOffset<read=readString>;   ///< The offset from the start of the RDEF chunk data to the constant name string.
+                            DWORD dwNameOffset<read=readStringWithPos>;   ///< The offset from the start of the RDEF chunk data to the constant name string.
+                            local string strName = readString(dwNameOffset);
+                            if((wOffset != 0)&&(wMembers>0)){
+                                ttpos = FTell();
+                                FSeek(D3D11_RDEF_Header.pos+wOffset);
+                                struct SubConstant{
+                                    DWORD dwNameOffset<read=readStringWithPos>;
+                                    DWORD dwTypeOffset;
+                                    DWORD unkn;
+                                    tttpos = FTell();
+                                    FSeek(D3D11_RDEF_Header.pos+dwTypeOffset);
+                                    Type type;
+                                    FSeek(tttpos);
+                                } subConstants[wMembers]<optimize=false,read=readSubConstant>;
+                                FSeek(ttpos);
+                            }
                         } D3D10_Type<read=readType>;
                         FSeek(tpos);
                     } D3D11_Constant[D3D10_ConstantBuffer.dwVariables]<optimize=false,read=readConstant>;

@@ -1,0 +1,333 @@
+//--------------------------------------
+//--- 010 Editor v6.0.1 Script File
+//
+// File:
+// Author:
+// Revision:
+// Purpose:
+//--------------------------------------
+
+void AIH(DWORD& val,DWORD off, DWORD pos, DWORD size);
+uint fidx[2];
+uint cnt;
+uint i;
+char fif[];
+//#define AIH(A,B,C,D) A = adjustBySizeIfHigher(A,B,C,D);
+//#define AIH adjustBySizeIfHigher
+
+
+//adjustBySizeIfHigher
+void AIH(DWORD& val,DWORD off, DWORD pos, DWORD size){
+	if(val+off>=pos){
+        Printf("Change %08x to %08x [%08x >= %08x]\n",val,val+size,val+off,pos);
+		val = val + size;
+	}else{
+        Printf("Not changing %08x [%08x < %08x]\n",val,val+off,pos);
+    }
+}
+//adjustBySizeIfHigher
+void AIHW(WORD& val,DWORD off, DWORD pos, DWORD size){
+	if(val+off>=pos){
+        Printf("Change %08x to %08x [%08x >= %08x]\n",val,val+size,val+off,pos);
+		val = val + size;
+	}else{
+        Printf("Not changing %08x [%08x < %08x]\n",val,val+off,pos);
+    }
+}
+
+
+
+for(i=0;i<FileCount();i++){
+    FileSelect(i);
+	fif = GetFileInterface();
+	if(fif == "Hex"){
+		if(cnt<2){
+			fidx[cnt] = i;
+		}
+		cnt += 1;
+	}
+}
+
+if(cnt != 2){
+	Warning("2 files must be open, 1st to copy constantbuffer to, 2nd to copy constantbuffer from.(%d open)",cnt);
+	return;
+}
+local uint cidx = InputNumber("Input constantbuffer idx.","Input constantbuffer idx.","0");
+local uint rbcidx = InputNumber("Input constantbuffer resource bind idx.","Input constantbuffer resource bind idx.","0");
+FileSelect(fidx[1]);
+RunTemplate();
+
+local DWORD dwNameOffset = 0;
+//D3D10_ConstantBuffer[cidx].dwNameOffset;
+local string strName = D3D10_ConstantBuffer[cidx].strName;
+local DWORD dwVariables = D3D10_ConstantBuffer[cidx].dwVariables;
+local DWORD dwOffset = D3D10_ConstantBuffer[cidx].dwOffset;
+local DWORD dwSize = D3D10_ConstantBuffer[cidx].dwSize;
+local DWORD dwType = D3D10_ConstantBuffer[cidx].dwType;
+local DWORD dwFlags = D3D10_ConstantBuffer[cidx].dwFlags;
+
+local DWORD rbind_dwType = D3D10_ResourceBinding[rbcidx].dwType;
+local DWORD rbind_ReturnType = D3D10_ResourceBinding[rbcidx].ReturnType;
+local DWORD rbind_Dimension = D3D10_ResourceBinding[rbcidx].Dimension;
+local DWORD rbind_dwNumSamples = D3D10_ResourceBinding[rbcidx].dwNumSamples;
+local DWORD rbind_dwBindPoint = D3D10_ResourceBinding[rbcidx].dwBindPoint;
+local DWORD rbind_dwBindCount = D3D10_ResourceBinding[rbcidx].dwBindCount;
+local DWORD rbind_dwFlags = D3D10_ResourceBinding[rbcidx].dwFlags;
+
+
+local DWORD D3D11_Constant_dwNameOffset[dwVariables];
+local string D3D11_Constant_strName;
+local DWORD D3D11_Constant_dwStartOffset[dwVariables];                   ///< The offset of the constant within the constant-buffer.
+local DWORD D3D11_Constant_dwSize[dwVariables];                          ///< The size of the constant.
+local DWORD D3D11_Constant_dwFlags[dwVariables];                         ///< Shader-variable flags, see D3D10_SHADER_VARIABLE_FLAGS.
+local DWORD D3D11_Constant_dwTypeOffset[dwVariables];                    ///< The offset from the start of the RDEF chunk data to the D3D10_Type for this constant.
+local DWORD D3D11_Constant_dwDefaultValue[dwVariables];                  ///< The default value of the constant.
+local DWORD D3D11_Constant_dwReserved[4*dwVariables]; 
+local uint spos;
+local uint x;
+local uint size = sizeof(D3D10_ConstantBuffer[cidx]);
+local string s;
+local int offset;
+
+for(i=0;i<dwVariables;i++){
+    D3D11_Constant_dwNameOffset[i] = D3D10_ConstantBuffer[cidx].D3D11_Constant[i].dwNameOffset;
+    spos = Strlen(D3D11_Constant_strName);
+	s = ReadString(D3D11_RDEF_Header.pos+D3D11_Constant_dwNameOffset[i])+',';
+	offset = Strstr(D3D11_Constant_strName,s);
+	if(offset == -1){
+		D3D11_Constant_strName += s;
+		D3D11_Constant_dwNameOffset[i] = spos;
+	}else{
+		D3D11_Constant_dwNameOffset[i] = offset;
+	}
+    D3D11_Constant_dwStartOffset[i] = D3D10_ConstantBuffer[cidx].D3D11_Constant[i].dwStartOffset;
+    D3D11_Constant_dwSize[i] = D3D10_ConstantBuffer[cidx].D3D11_Constant[i].dwSize;
+    D3D11_Constant_dwFlags[i] = D3D10_ConstantBuffer[cidx].D3D11_Constant[i].dwFlags;
+    D3D11_Constant_dwTypeOffset[i] = D3D10_ConstantBuffer[cidx].D3D11_Constant[i].dwTypeOffset;
+    D3D11_Constant_dwDefaultValue[i] = D3D10_ConstantBuffer[cidx].D3D11_Constant[i].dwDefaultValue;
+    for(x=0;x<4;x++){
+        D3D11_Constant_dwReserved[4*i+x] = D3D10_ConstantBuffer[cidx].D3D11_Constant[i].dwReserved[x];
+    }
+	size += sizeof(D3D10_ConstantBuffer[cidx].D3D11_Constant[i]);
+}
+
+local WORD D3D11_Constant_D3D10_Type_wClass[dwVariables];                           ///< The variable class of the type. See D3D10_SHADER_VARIABLE_CLASS.
+local WORD D3D11_Constant_D3D10_Type_wType[dwVariables];                            ///< The variable type. See D3D10_SHADER_VARIABLE_TYPE.
+local WORD D3D11_Constant_D3D10_Type_wRows[dwVariables];                            ///< Number of rows in a matrix. 1 for other numeric types, 0 for other types.
+local WORD D3D11_Constant_D3D10_Type_wColumns[dwVariables];                         ///< Number of columns in a matrix. 1 for other numeric types, 0 for other types.
+local WORD D3D11_Constant_D3D10_Type_wElements[dwVariables];                        ///< Number of elements in an array; otherwise 0.
+local WORD D3D11_Constant_D3D10_Type_wMembers[dwVariables];                         ///< Number of members in the structure; otherwise 0.
+local WORD D3D11_Constant_D3D10_Type_wOffset[dwVariables];                          ///< Offset to something. Seems always to be 0.
+local WORD D3D11_Constant_D3D10_Type_wReserved[dwVariables];                        ///< Unknown. Seems always to be 0.
+local DWORD D3D11_Constant_D3D10_Type_dwReserved[4*dwVariables];                   ///< Unknown.
+local DWORD D3D11_Constant_D3D10_Type_dwNameOffset[dwVariables]; 
+local string D3D11_Constant_D3D10_Type_strName;
+
+for(i=0;i<dwVariables;i++){
+    D3D11_Constant_D3D10_Type_wClass[i] = D3D10_ConstantBuffer[cidx].D3D11_Constant[i].D3D10_Type.wClass;
+    D3D11_Constant_D3D10_Type_wType[i] = D3D10_ConstantBuffer[cidx].D3D11_Constant[i].D3D10_Type.wType;
+    D3D11_Constant_D3D10_Type_wRows[i] = D3D10_ConstantBuffer[cidx].D3D11_Constant[i].D3D10_Type.wRows;
+    D3D11_Constant_D3D10_Type_wColumns[i] = D3D10_ConstantBuffer[cidx].D3D11_Constant[i].D3D10_Type.wColumns;
+    D3D11_Constant_D3D10_Type_wElements[i] = D3D10_ConstantBuffer[cidx].D3D11_Constant[i].D3D10_Type.wElements;
+    D3D11_Constant_D3D10_Type_wMembers[i] = D3D10_ConstantBuffer[cidx].D3D11_Constant[i].D3D10_Type.wMembers;
+    D3D11_Constant_D3D10_Type_wOffset[i] = D3D10_ConstantBuffer[cidx].D3D11_Constant[i].D3D10_Type.wOffset;
+    D3D11_Constant_D3D10_Type_wReserved[i] = D3D10_ConstantBuffer[cidx].D3D11_Constant[i].D3D10_Type.wReserved;
+    for(x=0;x<4;x++){
+        D3D11_Constant_D3D10_Type_dwReserved[4*i+x] = D3D10_ConstantBuffer[cidx].D3D11_Constant[i].D3D10_Type.dwReserved[x];
+    }
+    D3D11_Constant_D3D10_Type_dwNameOffset[i] = D3D10_ConstantBuffer[cidx].D3D11_Constant[i].D3D10_Type.dwNameOffset;
+    spos = Strlen(D3D11_Constant_D3D10_Type_strName);
+	s = ReadString(D3D11_RDEF_Header.pos+D3D11_Constant_D3D10_Type_dwNameOffset[i])+',';
+	offset = Strstr(D3D11_Constant_D3D10_Type_strName,s);
+	if(offset == -1){
+		D3D11_Constant_D3D10_Type_strName += s;
+		D3D11_Constant_D3D10_Type_dwNameOffset[i] = spos;
+	}else{
+		D3D11_Constant_D3D10_Type_dwNameOffset[i] = offset;
+	}
+	size += sizeof(D3D10_ConstantBuffer[cidx].D3D11_Constant[i].D3D10_Type);
+}
+FileSelect(fidx[0]);
+RunTemplate();
+local DWORD idx = D3D11_RDEF_Header.chunkIdx;
+if(idx>D3D10_ShaderObjectHeader.dwNumChunks){
+    Warning("chunkIdx >  dwNumChunks, %d > %d",idx,D3D10_ShaderObjectHeader.dwNumChunks);
+}
+size += Strlen(D3D11_Constant_D3D10_Type_strName)+Strlen(D3D11_Constant_strName)+Strlen(strName);
+Printf("chunkIdx: %d\n", idx);
+Printf("%s\n", strName);
+Printf("%s\n", D3D11_Constant_strName);
+Printf("%s\n", D3D11_Constant_D3D10_Type_strName);
+local uint pos = D3D11_RDEF_Header.pos+D3D10_ChunkHeader[idx].dwChunkDataSize;
+
+local DWORD SZB = sizeof(D3D10_ConstantBuffer[0]);
+local DWORD SZBI = sizeof(D3D10_ResourceBinding[0]);
+local uint pos2 = D3D11_RDEF_Header.pos+D3D11_RDEF_Header.dwConstBufferOffset+D3D11_RDEF_Header.dwConstantBuffers*SZB;
+local uint pos3 = D3D11_RDEF_Header.pos+D3D11_RDEF_Header.dwBoundResourceOffset+D3D11_RDEF_Header.dwBoundResources*SZBI;
+
+Printf("pos: %08x pos2: %08x size: %d\n",pos,pos2,size);
+
+local uint handledTypeOffsets[1000];
+local uint hTOO = 0;
+local uint found = 0;
+local uint n;
+local uint x2;
+local WORD wMembers;
+for(i=0;i<D3D11_RDEF_Header.dwBoundResources;i++){
+	AIH(D3D10_ResourceBinding[i].dwNameOffset,D3D11_RDEF_Header.pos,pos,size);
+    AIH(D3D10_ResourceBinding[i].dwNameOffset,D3D11_RDEF_Header.pos,pos2,SZB);
+    AIH(D3D10_ResourceBinding[i].dwNameOffset,D3D11_RDEF_Header.pos,pos3,SZBI);
+}
+for(i=0;i<D3D11_RDEF_Header.dwConstantBuffers;i++){
+	AIH(D3D10_ConstantBuffer[i].dwNameOffset,D3D11_RDEF_Header.pos,pos,size);
+    AIH(D3D10_ConstantBuffer[i].dwOffset,D3D11_RDEF_Header.pos,pos,size);
+
+	AIH(D3D10_ConstantBuffer[i].dwNameOffset,D3D11_RDEF_Header.pos,pos2,SZB);
+    AIH(D3D10_ConstantBuffer[i].dwOffset,D3D11_RDEF_Header.pos,pos2,SZB);
+
+	AIH(D3D10_ConstantBuffer[i].dwNameOffset,D3D11_RDEF_Header.pos,pos3,SZBI);
+    AIH(D3D10_ConstantBuffer[i].dwOffset,D3D11_RDEF_Header.pos,pos3,SZBI);
+	for(x=0;x<D3D10_ConstantBuffer[i].dwVariables;x++){
+		AIH(D3D10_ConstantBuffer[i].D3D11_Constant[x].dwNameOffset,D3D11_RDEF_Header.pos,pos,size);
+		//AIH(D3D10_ConstantBuffer[i].D3D11_Constant[x].dwStartOffset,D3D11_RDEF_Header.pos,pos,size);
+		AIH(D3D10_ConstantBuffer[i].D3D11_Constant[x].dwTypeOffset,D3D11_RDEF_Header.pos,pos,size);
+        AIH(D3D10_ConstantBuffer[i].D3D11_Constant[x].D3D10_Type.dwNameOffset,D3D11_RDEF_Header.pos,pos,size);
+
+        AIH(D3D10_ConstantBuffer[i].D3D11_Constant[x].dwNameOffset,D3D11_RDEF_Header.pos,pos2,SZB);
+		//AIH(D3D10_ConstantBuffer[i].D3D11_Constant[x].dwStartOffset,D3D11_RDEF_Header.pos,pos2,SZB);
+		AIH(D3D10_ConstantBuffer[i].D3D11_Constant[x].dwTypeOffset,D3D11_RDEF_Header.pos,pos2,SZB);
+
+        AIH(D3D10_ConstantBuffer[i].D3D11_Constant[x].dwNameOffset,D3D11_RDEF_Header.pos,pos3,SZBI);
+		//AIH(D3D10_ConstantBuffer[i].D3D11_Constant[x].dwStartOffset,D3D11_RDEF_Header.pos,pos3,SZBI);
+		AIH(D3D10_ConstantBuffer[i].D3D11_Constant[x].dwTypeOffset,D3D11_RDEF_Header.pos,pos3,SZBI);
+        found = 0;
+        for(n = 0;n < hTOO;n++){
+            if(handledTypeOffsets[n] == D3D10_ConstantBuffer[i].D3D11_Constant[x].dwTypeOffset){
+                found = 1;
+                break;
+            }
+        }
+        if(found == 0){
+            AIHW(D3D10_ConstantBuffer[i].D3D11_Constant[x].D3D10_Type.wOffset,D3D11_RDEF_Header.pos,pos2,SZB);
+            AIH(D3D10_ConstantBuffer[i].D3D11_Constant[x].D3D10_Type.dwNameOffset,D3D11_RDEF_Header.pos,pos2,SZB);
+
+            AIHW(D3D10_ConstantBuffer[i].D3D11_Constant[x].D3D10_Type.wOffset,D3D11_RDEF_Header.pos,pos3,SZBI);
+            AIH(D3D10_ConstantBuffer[i].D3D11_Constant[x].D3D10_Type.dwNameOffset,D3D11_RDEF_Header.pos,pos3,SZBI);
+            wMembers = D3D10_ConstantBuffer[i].D3D11_Constant[x].D3D10_Type.wMembers;
+            for(x2 = 0;x2 < wMembers; x2++){
+                AIH(D3D10_ConstantBuffer[i].D3D11_Constant[x].D3D10_Type.subConstants[x2].dwNameOffset,D3D11_RDEF_Header.pos,pos2,SZB);
+                AIH(D3D10_ConstantBuffer[i].D3D11_Constant[x].D3D10_Type.subConstants[x2].dwTypeOffset,D3D11_RDEF_Header.pos,pos2,SZB);
+
+                AIH(D3D10_ConstantBuffer[i].D3D11_Constant[x].D3D10_Type.subConstants[x2].dwNameOffset,D3D11_RDEF_Header.pos,pos3,SZBI);
+                AIH(D3D10_ConstantBuffer[i].D3D11_Constant[x].D3D10_Type.subConstants[x2].dwTypeOffset,D3D11_RDEF_Header.pos,pos3,SZBI);
+
+                for(n = 0;n < hTOO;n++){
+                    if(handledTypeOffsets[n] == D3D10_ConstantBuffer[i].D3D11_Constant[x].D3D10_Type.subConstants[x2].dwTypeOffset){
+                        found = 1;
+                        break;
+                    }
+                }
+                if(found == 0){
+                    handledTypeOffsets[hTOO] = D3D10_ConstantBuffer[i].D3D11_Constant[x].D3D10_Type.subConstants[x2].dwTypeOffset;
+                    hTOO++;
+                    AIH(D3D10_ConstantBuffer[i].D3D11_Constant[x].D3D10_Type.subConstants[x2].type.dwNameOffset,D3D11_RDEF_Header.pos,pos2,SZB);
+                    AIH(D3D10_ConstantBuffer[i].D3D11_Constant[x].D3D10_Type.subConstants[x2].type.dwNameOffset,D3D11_RDEF_Header.pos,pos3,SZBI);
+                }
+            }
+            handledTypeOffsets[hTOO] = D3D10_ConstantBuffer[i].D3D11_Constant[x].dwTypeOffset;
+            hTOO++;
+        }
+	}
+}
+
+D3D10_ChunkHeader[idx].dwChunkDataSize += size+SZB+SZBI;
+D3D11_RDEF_Header.dwConstantBuffers += 1;
+D3D11_RDEF_Header.dwBoundResources += 1;
+for(i=0;i<D3D10_ShaderObjectHeader.dwNumChunks;i++){
+	AIH(dwChunkTable[i],0,pos,size);
+    AIH(dwChunkTable[i],0,pos2,SZB);
+    AIH(dwChunkTable[i],0,pos3,SZBI);
+}
+AIH(D3D11_RDEF_Header.dwConstBufferOffset,D3D11_RDEF_Header.pos,pos3,SZBI);
+AIH(D3D11_RDEF_Header.dwBoundResourceOffset,D3D11_RDEF_Header.pos,pos3,SZB);
+
+InsertBytes(pos,size);
+InsertBytes(pos2,SZB);
+InsertBytes(pos3,SZBI);
+
+pos += SZB+SZBI;
+
+
+local string strBuf = strName+","+D3D11_Constant_strName+D3D11_Constant_D3D10_Type_strName;
+local uint strBufLen = Strlen(strBuf);
+for(i=0;i<strBufLen;i++){
+    if(strBuf[i] == ','){
+        strBuf[i] = '\x00';
+    }
+}
+WriteBytes(strBuf,pos,strBufLen);
+
+local uint align = (dwNameOffset+pos+strBufLen-D3D11_RDEF_Header.pos) % 16;
+strBufLen += align;
+
+RunTemplate();
+
+rbcidx = D3D11_RDEF_Header.dwConstantBuffers-1;
+cidx = D3D11_RDEF_Header.dwBoundResources-1;
+D3D10_ConstantBuffer[cidx].dwNameOffset = dwNameOffset+pos-D3D11_RDEF_Header.pos;
+D3D10_ConstantBuffer[cidx].dwVariables = dwVariables;
+D3D10_ConstantBuffer[cidx].dwOffset = dwNameOffset+pos+strBufLen-D3D11_RDEF_Header.pos;
+D3D10_ConstantBuffer[cidx].dwSize = dwSize;
+D3D10_ConstantBuffer[cidx].dwType = dwType;
+D3D10_ConstantBuffer[cidx].dwFlags = dwFlags;
+
+D3D10_ResourceBinding[rbcidx].dwNameOffset = dwNameOffset+pos-D3D11_RDEF_Header.pos;
+D3D10_ResourceBinding[rbcidx].dwType = rbind_dwType;
+D3D10_ResourceBinding[rbcidx].ReturnType = rbind_ReturnType;
+D3D10_ResourceBinding[rbcidx].Dimension = rbind_Dimension;
+D3D10_ResourceBinding[rbcidx].dwNumSamples = rbind_dwNumSamples;
+D3D10_ResourceBinding[rbcidx].dwBindPoint = rbind_dwBindPoint;
+D3D10_ResourceBinding[rbcidx].dwBindCount = rbind_dwBindCount;
+D3D10_ResourceBinding[rbcidx].dwFlags = rbind_dwFlags;
+
+
+RunTemplate();
+
+local long toffset = -1;
+for(i=0;i<dwVariables;i++){
+    if(toffset == -1){
+        toffset = dwVariables*sizeof(D3D10_ConstantBuffer[cidx].D3D11_Constant[i]) + pos + strBufLen - D3D11_RDEF_Header.pos;
+    }
+    D3D10_ConstantBuffer[cidx].D3D11_Constant[i].dwStartOffset = D3D11_Constant_dwStartOffset[i];
+    D3D10_ConstantBuffer[cidx].D3D11_Constant[i].dwSize = D3D11_Constant_dwSize[i];
+    D3D10_ConstantBuffer[cidx].D3D11_Constant[i].dwFlags = D3D11_Constant_dwFlags[i];
+    D3D10_ConstantBuffer[cidx].D3D11_Constant[i].dwTypeOffset = toffset;
+    D3D10_ConstantBuffer[cidx].D3D11_Constant[i].dwDefaultValue = D3D11_Constant_dwDefaultValue[i];
+    //Printf("D3D11_Constant_dwNameOffset[i]: %d\tStrlen(strName):%d\tpos:0x%08x\tD3D11_RDEF_Header.pos:0x%08x\n",D3D11_Constant_dwNameOffset[i],Strlen(strName),pos,D3D11_RDEF_Header.pos);
+    D3D10_ConstantBuffer[cidx].D3D11_Constant[i].dwNameOffset = D3D11_Constant_dwNameOffset[i] + Strlen(strName) + 1 + pos - D3D11_RDEF_Header.pos;
+    //Printf("D3D10_ConstantBuffer[cidx].D3D11_Constant[i].dwNameOffset: %d\n",D3D10_ConstantBuffer[cidx].D3D11_Constant[i].dwNameOffset);
+    for(x=0;x<4;x++){
+        D3D10_ConstantBuffer[cidx].D3D11_Constant[i].dwReserved[x] = D3D11_Constant_dwReserved[4*i+x];
+    }
+    toffset += sizeof(D3D10_ConstantBuffer[cidx].D3D11_Constant[i].D3D10_Type);
+}
+
+RunTemplate();
+
+for(i=0;i<dwVariables;i++){
+    D3D10_ConstantBuffer[cidx].D3D11_Constant[i].D3D10_Type.wClass = D3D11_Constant_D3D10_Type_wClass[i];
+    D3D10_ConstantBuffer[cidx].D3D11_Constant[i].D3D10_Type.wType = D3D11_Constant_D3D10_Type_wType[i];
+    D3D10_ConstantBuffer[cidx].D3D11_Constant[i].D3D10_Type.wRows = D3D11_Constant_D3D10_Type_wRows[i];
+    D3D10_ConstantBuffer[cidx].D3D11_Constant[i].D3D10_Type.wColumns = D3D11_Constant_D3D10_Type_wColumns[i];
+    D3D10_ConstantBuffer[cidx].D3D11_Constant[i].D3D10_Type.wElements = D3D11_Constant_D3D10_Type_wElements[i];
+    D3D10_ConstantBuffer[cidx].D3D11_Constant[i].D3D10_Type.wMembers = D3D11_Constant_D3D10_Type_wMembers[i];
+    D3D10_ConstantBuffer[cidx].D3D11_Constant[i].D3D10_Type.wOffset = D3D11_Constant_D3D10_Type_wOffset[i];
+    D3D10_ConstantBuffer[cidx].D3D11_Constant[i].D3D10_Type.wReserved = D3D11_Constant_D3D10_Type_wReserved[i];
+    D3D10_ConstantBuffer[cidx].D3D11_Constant[i].D3D10_Type.dwNameOffset = D3D11_Constant_D3D10_Type_dwNameOffset[i] + Strlen(D3D11_Constant_strName) + Strlen(strName) + 1 + pos - D3D11_RDEF_Header.pos;
+    for(x=0;x<4;x++){
+        D3D10_ConstantBuffer[cidx].D3D11_Constant[i].D3D10_Type.dwReserved[x] = D3D11_Constant_D3D10_Type_dwReserved[4*i+x];
+    }
+}
+D3D10_ShaderObjectHeader.dwSize = FileSize();
+RunTemplate();
+
