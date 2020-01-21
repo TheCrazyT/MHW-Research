@@ -47,10 +47,11 @@ typedef struct bool3{
 };
 typedef uint bool;""")
 
+rootPath = r"\src"
 classFiles = {}
-for root, dirs, files in os.walk("./src"):
+for root, dirs, files in os.walk(rootPath):
     for filename in files:
-        with open(os.path.join("src",filename), 'r') as content_file:
+        with open(os.path.join(rootPath,filename), 'r') as content_file:
             content = content_file.read()
             result = re.findall("cbuffer ([^ ]+)\n",content)
             for n in result:
@@ -76,7 +77,7 @@ for key,filename in classFiles.iteritems():
 print("")
 for key,filename in classFiles.iteritems():
     print("//%s : %s" % (key,filename))
-    with open(os.path.join("src",filename), 'r') as content_file:
+    with open(os.path.join(rootPath,filename), 'r') as content_file:
         content = content_file.read()
         start = False
         pos = 0

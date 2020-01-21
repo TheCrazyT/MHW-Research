@@ -23,7 +23,7 @@ shaderPos[i] = shaderDatas.shaderDataShort.pos;
 shaderLength[i] = shaderDatas.shaderDataShort.length;
 int filenum = GetFileNum();
 for(i=0;i<cnt;i++){
-    SPrintf( filename, "d:\\tmp\\shaders\\%d.shdr", i);
+    SPrintf( filename, "E:\\MHW Shader Research\\MHW-Research\\shdr\\%d.shdr", i);
     SetSelection( shaderPos[i], shaderLength[i] );
     CopyToClipboard();
     FileNew("Hex");

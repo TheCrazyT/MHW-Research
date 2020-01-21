@@ -1,0 +1,200 @@
+//------------------------------------------------
+//--- 010 Editor v8.0.1 Binary Template
+//
+//      File: 
+//   Authors: CrazyT
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: *.mrl3
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+local char possibleStrings[] = "CBSnowFieldBake,CBUpdateBufferFromMesh,CBMhMaterialUberLocal__disclosure,CBSystemSnow,CBMhSky2SimpleGBuffer,CBWaterMaterial,CBMhMaterialVfxTornadoLocal__disclosure,CBMhMaterialIvyFloorLocal__disclosure,CBMhMaterialEM057Local__disclosure,CBDevelopColorPick,CBPrimGpuSystem,CBRadialBlurFunction,CBFilter2,CBMhMaterialVfxWaveLocal__disclosure,CBMhMaterialNPCHairLocal__disclosure,CBGUIGBuffer,CBMhSkyPS,CBAtmosphere,CBCubeBlend,CBCreateMipmap,CBMhMaterialEMLocal__disclosure,CBMaterialCommon__disclosure,CBGlobalIllumination,CBMhMaterialEM117Local__disclosure,CBMhMaterialSKM001Local__disclosure,CBSpeedTreePrimitiveInfo,CBMhMaterialEM100Local__disclosure,CBOutline,SeaDisplacement,CBBitonicSort,CBStarrySky,CBMhMaterialVfxWaterLocal__disclosure,cbHDAO,CBPartialColor,CBSystemGamma,CBVRCompute,CBSSSSS_Profile,CBMhMaterialSlantFloorLocal__disclosure,CBConstant,CBViewProjection,CBMhMaterialFlowDirLocal__disclosure,CBLGTPRBDebug,CBVRCommon,CB_CombinedFilter_ImagePlane,pix_clear_constants,CBGaussian,CBMhMaterialEM080_01Local__disclosure,CBLuminance,CBMhMaterialSpeedTreeStdFurLocal__disclosure,CBMhMaterialPLEditFaceLocal__disclosure,CBMhMaterialNPCEditFaceLocal__disclosure,CBMhMaterialStdLocal__disclosure,CBPrimSystem,CBTest,CBTSAO,CBMhMaterialNPCFaceLocal__disclosure,CBGodRaysConfiguration,CBMhSky2SimpleVS,CBNormalMerge,CBMhMaterialEC021Local__disclosure,CBVRGaussian,CBInstancing,CBSnowHeightPick,CBColorCorrectToneCurve,CBShapeMesh,CB_DL,CBMhMaterialLandscapeFlowLocal__disclosure,CBAmbientOccluder,CBSnowField2Material,CBToneMappingSdrSim,CBMhMaterialSpeedTreeStdBlendLocal__disclosure,CBSSSSS,CBRenderFrame,CBMhMaterialFakeEyeLocal__disclosure,CBSystem,CBModelChain,CBPick,CBSky,CBSnowField2Debug,CB_TemporalAA2,CBLUTMaking,CBMhEmissiveFog__disclosure,CBNormalRecalc,CBConstantHaltonSequence,CBSpeedTreeLocalWindPF,CBMhMaterialFakeLensLocal__disclosure,CBPrimGpuOcclusionVoxelSystem,CBMhMaterialVfxWave,CBTestLight,CBMhMaterialFurnitureLocal__disclosure,CBSnowFall,CBSSLR,CBGUIIcon,CBSnowFieldGeometry,CBResample,CBGUIDevelop,CBSnowField4Geometry,CBMhMaterialTestLocal__disclosure,CBMhDecal,CBViewFrustum,CBFog,CBMhMaterialEM124Local__disclosure,CBVRRecompute,CBLuminanceDebugDisp,CBLGTPRBGen,CBMhMaterialStdBlendLocal__disclosure,CBBokehAutoFocus,CBMotionBlur,CBMhMaterialEM103Local__disclosure,CBBloomSettings,CBLightProbes,CBSpeedTreeGlobalWind,CBMhMaterialLandscapeLocal__disclosure,CBPickObject,CBHermiteCurveRGB,CBMhSkyVS,CBMhMaterialIridescentBlendLocal__disclosure,CBMhMaterialEM002Local__disclosure,CBMhMaterialEM080Local__disclosure,CBCapsuleAO,CBMhMaterialFakeInnerEmitLocal__disclosure,CBImagePlane2,CBMhMaterialNikuLocal__disclosure,CBMhMaterialVfxDispWaveLocal__disclosure,CBSpeedTree,CBWaterPick,CBPrimitiveDebug,CBSystemColor,CBAmbientOcclusion,CBMhMaterialSlantFloor,CBMhMaterialScrIceBlendNoFurLocal__disclosure,CBMhMaterialFlowLavaLocal__disclosure,CBMhMaterialSpeedTreeStdLocal__disclosure,CBWaterModel,CBLightParameters,CB_TemporalAA,CB_PlantOnSurface,CBImagePlane,CBMhMaterialEM125Local__disclosure,CBPrimitiveEx,cbHBAO,CBMhMaterialNPCEyeLocal__disclosure,CBMhMaterialFlagWaveLocal__disclosure,CBMhMaterialVfxDebufBodyLocal__disclosure,CBContactShadowInfo,CBSnowShoveler,CBLUTBlending,CBPrimitive,CBErrorUnit,CBMhMaterialSpeedTreeStdIceLocal__disclosure,CBSnowFieldMaterial,CBWaterWaveMaterial,CBSnowPreProcess,CBMhMaterialFlagWaveBlendLocal__disclosure,CBMhMaterialScrIceLocal__disclosure,CBVRVolumeParams,CBDecalCommon,CBMhMaterialVfxIceLocal__disclosure,CBDebug,CBMhMaterialArrayLocal__disclosure,CBColorCorrectCube,CBMhDecalSM,CBMhMaterial_EM105_EVCLocal__disclosure,CBMhMaterialEM115Local__disclosure,CBHeightToNormal,CBMhMaterialPLHairLocal__disclosure,CBSpeedTreeGlobalWindPF,CBScreen,CBMhMaterialEM032Local__disclosure,CB_BGTexture,CBHermiteCurve,CBMhMaterialScrWaterLocal__disclosure,CBTubeLight,CBModel,CBPrimBufferDescription,CBMhMaterialSZK001Local__disclosure,CBGUIDistanceField,CBMhSky2SimplePS,CBWorkaround,CBLight,CBImageEvaluator,CBMhMaterialGlobal,CBMhMaterialScrIceBlendLocal__disclosure,CBMhMaterialFurLocal__disclosure,CBMhMaterialNPCLocal__disclosure,CBTexturePosScaleFactor,CBNewDOFFilter,CBMhSkyLpPS,CBMhMaterialEM024Local__disclosure,CBMhMaterialEM063Local__disclosure,CBMhMaterialEM011Local__disclosure,CBCSClear,CBROPTest,CBMhMaterialSimpleLocal__disclosure,CBRadialBlurFilter,CBMhMaterialNPCSkinLocal__disclosure,CBMhSky2GBuffer,CBMhMaterialPLLocal__disclosure,CBHazeFilter,CBDOFFilter,CBGodRaysFilter,CBMhMaterialIvyFloor,CBVRFilter,CBFilter,CBMhMaterialStdBlendNoFurLocal__disclosure,CBMhMaterialPLEyeLocal__disclosure,CBMhMaterialEM105Local__disclosure,CBMhSkyGBuffer,CB_CombinedFilter_ColorCorrect,CBLightShaft,CBWaterCustomLight,CBMhMaterialSpeedTreeStdSnowLocal__disclosure,CBSparkleParam,CBWaterCustom,CBMhMaterialEM036Local__disclosure,CBUpdateBufferFromMeshConditions,CBMhMaterialVfxFloodLocal__disclosure,CBBloom,CBMhMaterialBurnLocal__disclosure,CBPrimCopyState,CBToneMapping,CBMhMaterialVfxVATDistLocal__disclosure,CBMhMaterialEM106Local__disclosure,CBMhMaterialVfxFakeInnerLocal__disclosure,CBComputeSkinning,CBBokehComposite,CBWaterWave,CBSnowField3Geometry,CBDecal,CBMhMaterialBTK001Local__disclosure,CBCAS,CBMaterialDebug,CBMhMaterialEMGlobal,CBVR_Debug,CBMhSky2PS,CBMhMaterialPLSkinLocal__disclosure,CBVignetting,CBMhMaterialEM102Local__disclosure,CBMhMaterialEM111Local__disclosure,CBDevelopFlags,CBSHDiffuse,CBWaterDebug,CBBlink,CBMhMaterialEM118Local__disclosure,CBUpdateBufferFromMeshConditions2,CBSnowFieldPreDepth,CBMhMaterialVfxSandFallLocal__disclosure,CBMhMaterialEMSLocal__disclosure,CBCubeCopy,CBGUIGlobal,CBWater,CBMhMaterialEM100_01Local__disclosure,CBPrimitivePick,CBMhMaterialFakeRefractionLocal__disclosure,CBColorCorrect,CBMhMaterialDynamicSnow__disclosure,CBCapsuleAOGeomParam,CBMotionBlurReconstruction,CBBokehCOCSettings,CBMhMaterialVfxDistDispLocal__disclosure,CBFXAAParam,CBGUINoiseAndFade,CBMhSky2VS,CBMaterialSnow__disclosure,CBSpeedTreeLocalWind,CB_CombinedFilter,CBMhMaterialUberIceLocal__disclosure,CBNewDOFFilter2,CBSpeedTreeSystem,CBLayoutCache,CBMhMaterialVfxAuroraLocal__disclosure,CBMhMaterialFakeSphereLocal__disclosure,CBMhMaterialEM044Local__disclosure,CBMhSky2Sun,CBSpeedTreeCollision__disclosure,CBUpdateBufferFromMeshData,CBDepthColor,CBLightShaft_LightParam,CBMhMaterialEM109Local__disclosure,CBMhMaterialSpeedTreeStdBlendSnowLocal__disclosure,CBGodRaysIterator,CBMhMaterialVfxDistDispWLocal__disclosure,CBBloomSample,CBPrimitiveMetaDataOcclusion";
+
+uint createJamcrc(char name[]){
+    local uchar result[5];
+    local uint a1;
+    local uint a2;
+    local uint a3;
+    local uint a4;
+    ChecksumAlgArrayBytes(CHECKSUM_CRC32,result,name,Strlen(name),"",-1,-1);
+    a1 = result[0];
+    a2 = result[1];
+    a3 = result[2];
+    a4 = result[3];
+    return 0xFFFFFFFF ^ ((a1<<24) | (a2<<16) | (a3<< 8) | (a4));
+}
+
+local int MAX_HASH_LENGTH=2000;
+local int hashes[MAX_HASH_LENGTH]<format=hex>;
+local int starts[MAX_HASH_LENGTH];
+local int lengths[MAX_HASH_LENGTH];
+local int idx1 = 1000;
+local int Hidx = 0;
+local char possibleStringsTmp[] = possibleStrings;
+local char name[];
+local int crcTestLen;
+local uint64 jamcrc<format=hex>;
+starts[0] = 0;
+while(idx1>0){
+    idx1 = Strchr(possibleStringsTmp,',');
+    //local int idx2 = Strchr(StrDel(possibleStrings,0,idx1+1),',');
+    //local int crcTestLen = ChecksumAlgArrayBytes(CHECKSUM_CRC32,result,"CB_BGTexture",12,"",0x04C11DB7,-1);
+    name = StrDel(possibleStringsTmp,idx1,Strlen(possibleStringsTmp));
+    lengths[Hidx] = Strlen(name);
+    hashes[Hidx] = createJamcrc(name);
+    starts[Hidx+1] = starts[Hidx]+idx1+1;
+    possibleStringsTmp = StrDel(possibleStringsTmp,0,idx1+1);
+    Hidx++;
+    /*if(Hidx==2){
+        break;
+    }*/
+}
+MAX_HASH_LENGTH = Hidx;
+
+struct ResBind;
+struct ResBind{
+    ubyte type;
+    ubyte unkn1;
+    ubyte unkn2;
+    ubyte unkn3;
+    uint32 x<format=hex>;
+    //not so shure if this is correct
+    uint texIdx;
+    uint unkn5;
+};
+
+
+struct Header{
+    long id<format=hex>;
+    byte unkn1[0x0C];
+    uint materialCount;
+    uint textureCount;
+    uint64 textureOffset<format=hex>;
+    uint64 materialOffset<format=hex>;
+};
+struct Texture{
+    // fileTypeCode for tex is [(zlib.crc32("rTexture".encode()) ^ 0xffffffff) & 0x7fffffff]
+    uint fileTypeCode<format=hex>;
+    byte unkn2[12];
+    char path[256];
+};
+struct Material{
+    uint headId<format=hex>;
+	//for example (zlib.crc32("NPC_Mt__4".encode()) ^ 0xffffffff) & 0x7fffffff
+    uint materialNameHash<format=hex>;
+    uint shaderHash<format=hex>;
+    uint skinid<format=hex>;
+    uint matSize;
+    short unkn4;
+    ubyte floatArrOff;
+    ubyte unkn5[9];
+    ubyte unkn6;
+    ubyte unkn7[15];
+    uint startAddr<format=hex>;
+    uint unkn8;
+};
+
+string ReadMaterial(Material& v){
+    string s;
+    string s2="";
+    if(v.headId==0x4516E7AB){
+        s2 = "nDraw::Material";
+    }
+    SPrintf( s, "%s skinid:%08x shaderHash:%08x",s2,v.skinid,v.shaderHash);
+    return s;
+}
+
+
+
+
+#include "mhwib_structures_generated.bt"
+
+struct MaterialA(int count){
+    Material material[count]<read=ReadMaterial>;
+};
+struct ResBindA(int count){
+    ResBind resBind[count]<optimize=false,read=readResBind>;
+};
+string ReadTexture(Texture& t){
+    return t.path;
+}
+string ReadHeader(Header& h){
+    return "rMaterial";
+}
+
+
+Header head<bgcolor=0x0000ff,read=ReadHeader>;
+Texture textures[head.textureCount]<read=ReadTexture,bgcolor=0xff0000>;
+
+
+string translate(uint32 partialHash){
+    string s = "";
+    for(i=0;i<MAX_HASH_LENGTH;i++){
+        if((hashes[i] & 0xFFFFF) == partialHash){
+            string r = StrDel(possibleStrings,0,starts[i]);
+            return StrDel(r,lengths[i],Strlen(r));
+        }
+    }
+	return s;
+}
+string readResBind(ResBind &v){
+    string s;
+    string t = "";
+    string type = "";
+    string translation = "";
+	//part of a CRC-32/JAMCRC-hash of the name for example tAlbedoMap__disclosure (found in a Shaderfile inside ShaderPackage.sdf)
+ 	local uint32 partialHash = v.x >> 12;
+    if(v.texIdx-1<head.textureCount){
+        t += textures[v.texIdx-1].path;
+    }
+    if((v.type & 0xF) == 2){
+        type = "texture";
+    }
+    if((v.type & 0xF) == 1){
+        type = "sampler";
+		t = "";
+    }
+    if((v.type & 0xF) == 0){
+        type = "cbuffer";
+		t = "";
+    }
+   	translation = translate(partialHash);
+	
+
+    SPrintf( s, "%s: %s %08x # %08x # %04d # %s",type,translation,partialHash,v.x,v.texIdx,t);
+    return s;
+}
+
+local uint i;
+local int j = 0;
+local int left = 0;
+local int cnt = 0;
+local uint oldpos;
+local uint sz;
+MaterialA material(head.materialCount)<bgcolor=0xffff00>;
+for(i=0;i<head.materialCount;i++){
+    FSeek(material.material[i].startAddr);
+    cnt = (material.material[i].floatArrOff*8)/(sizeof(ResBind));
+    ResBindA resBinds(cnt)<bgcolor=0x00ffff>;
+    left = (material.material[i].matSize-material.material[i].floatArrOff*8)/4;
+    for(j=0;j<cnt;j++){
+        if((resBinds.resBind[j].type & 0xF)==0){
+			oldpos = FTell();
+			createClassByHash(resBinds.resBind[j].x >> 12);
+			sz = FTell()-oldpos;
+			left -= sz/4;
+			if(FTell() % 16>0){
+				left -= 16-FTell() % 16;
+				FSeek(FTell()+(16-FTell() % 16));
+			}
+        }
+    }
+    if(left>0){
+	   struct FloatArr{
+			float floatVal[left]<bgcolor=0x00ffaa,optimize=false>;
+		}floatArr;
+    }
+}
