@@ -1,0 +1,381 @@
+//--------------------------------------
+//--- 010 Editor v6.0.1 Binary Template
+//
+// File: 
+// Author: CrazyT
+// Revision:
+// Purpose:
+// File Mask: *.sdf
+//--------------------------------------
+
+struct MeshBlock;
+struct BlockRef;
+struct Material;
+struct UnknStructData;
+struct UnknStructDataSub;
+struct UnknStruct2Sub;
+struct ShaderData;
+struct ShaderDataShort;
+string readBlock(MeshBlock &b);
+string readSub(UnknStructDataSub &sub);
+string readUnkn4(uint64 unkn4);
+string readUnknStruct2(UnknStruct2Sub &v);
+
+//Offset of:
+//4E 6F 72 6D 61 6C 00 54 61 6E 67 65 6E 74 00 55 56 5F 50 72 69 6D 61 72 79 00 55 56 5F 53 65 63 6F 6E 64 61 72 79 00 57 65 69 67 68 74 00 57 65 69 67 68 74 00 4A 6F 69 6E 74 00 4A 6F 69 6E 74 00 43 6F 6C 6F 72 00 50 6F 73 69 74 69 6F 6e 50 46 00 49 41 53 6b 69 6e 38 77 74 32 55 56 00 50 6f 73 69 74 69 6f 6e 00
+//=0xaae2d85
+//-0x6f6c85 (next val of blocktype 0x81F58067 in ShaderPackageIntel.sdf) = 0xA3EC100
+//local uint32 textsOffset = 0xA3EC100;
+//local uint32 blockStart = 0x9bf9618;
+//local uint32 materialStart = 0x4510c;
+
+//CRC hash-sums seem to be CRC-32/JAMCRC or atleast similar to it.
+
+struct Property1{
+    uint64 stringPointer<format=hex>;
+	union FlagsU1{
+		struct Flags1{
+			uint64 unkn : 20<format = hex>;
+			uint64 index : 8;
+			uint64 unkn1 : 20<format = hex>;
+			uint64 unkn2 : 16;
+		} data;
+		uint64 val<format = hex>;
+	}flags;
+    local uint64 realStringPointer<format=hex>;
+    realStringPointer=stringPointer+head.textsOffset;
+    local uint64 curPos = FTell();
+    FSeek(realStringPointer);
+    string text<bgcolor=0x333333,optimize=false>;
+    FSeek(curPos);
+} ;
+struct Property2{
+    uint64 stringPointer<format=hex>;
+	union FlagsU2{
+		struct Flags2{
+			uint32 unkn : 14<format = hex>;
+			uint32 index : 6<format = hex>;
+			uint32 unkn1 : 32-14-6<format = hex>;
+		} data;
+		uint32 val<format = hex>;
+	}flags;
+	//for example (zlib.crc32("Position".encode()) ^ 0xffffffff) & 0x7fffffff
+	uint nameHash : 32<format = hex>;
+    local uint64 realStringPointer<format=hex>;
+    realStringPointer=stringPointer+head.textsOffset;
+    local uint64 curPos = FTell();
+    FSeek(realStringPointer);
+    string text<bgcolor=0x333333,optimize=false>;
+    FSeek(curPos);
+} ;
+struct UnknStruct2Sub{
+	uint32 pos<format=hex>;
+    local uint32 oldpos = FTell();
+	FSeek(pos+head.textsOffset);
+	string text<bgcolor=0x333333,optimize=false>;
+	FSeek(oldpos);
+	uint32 unkn2<format=hex>;
+	uint16 unkn3<format=hex>;
+	uint16 unkn4<format=hex>;
+	uint32 unkn5<format=hex>;
+};
+struct UnknStruct2{
+	uint32 count;
+	uint32 unkn1;
+	//UnknStruct2Sub sub[count]<optimize=false,read=readUnknStruct2>;
+	Property2 props[count]<read=readProp2,optimize=false>;
+	uint32 empty[64-count*4]<format=hex>;
+};
+struct UnknStructDataSub{
+    uint32 hdata[4];
+	uint64 pos;
+    local uint32 oldpos = FTell();
+	FSeek(pos+head.textsOffset);
+	string text<bgcolor=0x333333,optimize=false>;
+	FSeek(oldpos);
+	uint32 data[2]<format=hex>;
+};
+struct UnknStructData{
+	uint64 pos;
+	local uint32 oldpos = FTell();
+	FSeek(pos+head.textsOffset);
+	string text<bgcolor=0x333333,optimize=false>;
+	FSeek(oldpos);
+	uint32 data1<format=hex>;
+	//for example (zlib.crc32("SSVRLinear".encode()) ^ 0xffffffff) & 0x7fffffff
+    uint32 uniqueId<format=hex>;
+    uint32 data2<format=hex>;
+    uint32 countSubElements;
+    if(countSubElements>0){
+        UnknStructDataSub sub[countSubElements]<read=readSub,optimize=false>;
+    }
+};
+struct BlockRef{
+    uint64 pos<format=hex>;
+    local uint64 curPos = FTell();
+    FSeek(pos);
+    MeshBlock b<read=readBlock,optimize=false>;
+    FSeek(curPos);
+};
+string readShaderData(ShaderData &v){
+    string res ="";
+    SPrintf( res, "%s",v.text );
+    return res;
+}
+
+string readUnknStruct2(UnknStruct2Sub &v){
+    string res ="";
+    SPrintf( res, "%s",v.text );
+    return res;
+}
+string readSub(UnknStructDataSub &sub){
+    string res ="";
+    SPrintf( res, "%s",sub.text );
+    return res;
+}
+string readUnknStructData(UnknStructData &d){
+    string s ="";
+    SPrintf( s, "%08x - %s", d.uniqueId,d.text );
+    return s;
+}
+string readUnkn4(uint64 unkn4){
+    string s ="";
+    if((unkn4!=0)&&(unkn4!=0xFFFFFFFF)){
+        SPrintf( s, "[%016lx] %s", unkn4+head.textsOffset,ReadString(unkn4+head.textsOffset) );
+    }
+    return s;
+}
+string readMaterial(Material &m){
+    string s;
+    SPrintf( s, "%08x - %s", m.shaderHash,m.nameStr );
+    return s;
+}
+string readProp1(Property1 &p){
+    string s;
+    //SPrintf( s, "%s(%016lx)", ReadString(p.stringPointer+head.textsOffset),p.unkn );
+    SPrintf( s, "(index:%3d offset:%3d flags.val:%08x%08x) %s", p.flags.data.index,p.flags.data.index*4,p.flags.val>>32,p.flags.val,p.text );
+    return s;
+}
+string readProp2(Property2 &p){
+    string s;
+    //SPrintf( s, "%s(%016lx)", ReadString(p.stringPointer+head.textsOffset),p.unkn );
+    SPrintf( s, "(index:%3d offset:%3d flags.val:%08x%08x) %s", p.flags.data.index, p.flags.data.index*4,p.flags.val>>32,p.flags.val,p.text );
+    return s;
+}
+
+string readBlock(MeshBlock &b){
+    string s;
+    SPrintf( s, " %08x - %s", b.blocktype ,b.nameStr);
+    return s;
+}
+string readBlockRef(BlockRef &b){
+    return readBlock(b.b);
+}
+string readShaderString(short s){
+	string str;
+    if(s<0){
+		SPrintf( str, "%d",s);
+        return str;
+    }
+	SPrintf( str, "%d  %s",s,shaderDatas.shaderData[s].text);
+    return str;
+}
+
+struct Head{
+    uint32 tag<format=hex>;
+    uint32 unkn1<format=hex>;
+    uint32 unknStruct1Count;
+    uint32 materialCount;
+    uint32 shaderCount;
+    uint32 unkn2<format=hex>;
+    uint32 blockCount;
+    uint32 unknStruct2Count;
+    uint32 unknStruct3Count;
+    uint32 unknStruct4Count;
+    uint32 unkn3[4];
+    uint32 unknStruct1Offset<format=hex>;
+    uint32 unkn5<format=hex>;
+    uint64 materialOffset<format=hex>;
+    uint64 shaderOffset<format=hex>;
+    uint64 blockOffset<format=hex>;
+    uint64 unknStruct2Offset<format=hex>;
+    uint64 unknStruct3Offset<format=hex>;
+    uint64 unknStruct4Offset<format=hex>;
+    uint64 unknStruct5Offset<format=hex>;
+    uint64 textsOffset<format=hex>;
+    uint64 unkn7;
+};
+struct BlockHead{
+    BlockRef bref[head.blockCount]<read=readBlockRef,optimize=false>;
+};
+struct MeshBlock{
+    uint64 name<read=readUnkn4>;
+	local uint64 curPos = FTell();
+    FSeek(name+head.textsOffset);
+    string nameStr<bgcolor=0x333333,optimize=false>;
+    FSeek(curPos);
+    uint32 unkn2<format=hex>;
+	//blocktype is actually just the hash of the name
+	//for example (zlib.crc32("IANonSkin1UV".encode()) ^ 0xffffffff) & 0x7fffffff
+    uint32 blocktype<format=hex>;
+    short propCount<format=hex>;
+    //props seem to contain indexes for used props
+    //that (lastpropnum+1)*4 seems to match vertexStructSize
+    //for example: 
+    //   UV_Primary(0000000000501080)
+    // will result in (5+1)*4 = 24
+    //still unshure how to decode type
+    short vertexStructSize;
+    uint32 unkn4<format=hex>;
+    Property1 props[propCount]<read=readProp1,optimize=false>;
+};
+struct MaterialHead{
+    uint32 unkn1;
+    uint32 unkn2;
+    uint32 unkn3;
+	uint32 unkn4;
+};
+struct Material{
+    short vertexShaderDataIdx<read=readShaderString>;
+    short pixelShaderDataIdx<read=readShaderString>;
+    uint32 unkn3<format=hex>;
+    short unkn4;
+    short shaderDataIdx2<read=readShaderString>;
+    uint16 unknStruct2Idx;
+    uint16 unkn7;
+    uint32 name<read=readUnkn4>;
+	local uint64 curPos = FTell();
+    FSeek(name+head.textsOffset);
+    string nameStr<bgcolor=0x333333,optimize=false>;
+    FSeek(curPos);
+    uint32 unkn8[2]<format=hex>;
+	//for example (zlib.crc32("GpuRibbonFireVolume".encode()) ^ 0xffffffff) & 0x7fffffff
+    uint32 shaderHash<format=hex>;
+};
+struct ShaderData{
+    uint64 pos<format=hex>;
+    uint32 length;
+    local uint32 oldpos = FTell();
+    FSeek(pos);
+    ubyte data[length]<bgcolor=0xaa00aa>;
+    FSeek(oldpos);
+    uint32 unkn2<format=hex>;
+    uint64 unkn3<format=hex>;
+    uint64 unkn4<format=hex>;
+    uint64 unkn5<format=hex>;
+    uint64 unkn6<format=hex>;
+    uint64 unkn7<format=hex>;
+    uint64 unkn8<format=hex>;
+    uint32 pos2<format=hex>;
+	local uint32 oldpos2 = FTell();
+	FSeek(pos2+head.textsOffset);
+	string text<bgcolor=0x333333,optimize=false>;
+	FSeek(oldpos2);
+	uint32 unkn9<format=hex>;
+    uint32 unkn10<format=hex>;
+	ushort unkn11;
+	ushort unkn12;
+};
+struct ShaderDataShort{
+    uint64 pos<format=hex>;
+    uint32 length;
+    local uint32 oldpos = FTell();
+    FSeek(pos);
+    ubyte data[length]<bgcolor=0xaa00aa>;
+    FSeek(oldpos);
+    uint32 unkn2<format=hex>;
+    uint64 unkn3<format=hex>;
+    uint64 unkn4<format=hex>;
+    uint64 unkn5<format=hex>;
+    
+};
+Head head<optimize=false,bgcolor=0xff0000>;
+FSeek(head.unknStruct1Offset);
+uint64 unknStruct1[head.unknStruct1Count]<format=hex,bgcolor=0x00ffff>;
+
+struct{
+	local int i;
+	for(i=0;i<head.unknStruct1Count;i++){
+		FSeek(unknStruct1[i]);
+		UnknStructData unknStruct1Data<bgcolor=0x00eeee,read=readUnknStructData>;
+	}
+}unknStruct1Datas;
+
+FSeek(head.blockOffset);
+struct{
+	BlockHead blockHead<optimize=false,bgcolor=0x00ff00>;
+	//FSeek(blockStart);
+	MeshBlock meshBlock[head.blockCount]<read=readBlock,optimize=false,bgcolor=0x00aa00>;
+} meshBlocks;
+
+FSeek(head.unknStruct2Offset);
+struct{
+	UnknStruct2 unknStruct2[head.unknStruct2Count]<optimize=false,format=hex,bgcolor=0xAAffff>;
+}unknStruct2s;
+
+FSeek(head.materialOffset);
+struct{
+	MaterialHead materialHead<optimize=false,bgcolor=0x0000ff>;
+	Material material[head.materialCount]<read=readMaterial,optimize=false,bgcolor=0x0000aa>;
+} materials;
+
+//maybe also helpful:
+// https://github.com/tgjones/slimshader
+// http://timjones.io/blog/archive/2015/09/02/parsing-direct3d-shader-bytecode
+FSeek(head.shaderOffset+0x10);
+struct{
+	ShaderData shaderData[head.shaderCount-1]<optimize=false,bgcolor=0xff00ff,read=readShaderData>;
+    ShaderDataShort shaderDataShort<optimize=false,bgcolor=0xff00ff>;
+} shaderDatas;
+
+FSeek(head.unknStruct3Offset);
+struct{
+    struct{
+        uint64 unkn1;
+        uint64 unkn2<format=hex>;
+        uint64 unknOffset3<format=hex>;
+    }unkn[head.unknStruct3Count];
+}unknStruct3<bgcolor=0x4400aa>;
+
+FSeek(head.unknStruct4Offset);
+struct{
+    struct{
+        uint64 unkn1;
+        uint64 unkn2<format=hex>;
+        uint64 unkn3<format=hex>;
+        uint64 unknOffset4<format=hex>;
+        uint64 unkn5<format=hex>;
+    }unkn[head.unknStruct4Count]<optimize=false>;
+    uint64 unkn<format=hex>;
+}unknStruct4<bgcolor=0x6600aa,optimize=false>;
+
+FSeek(head.unknStruct5Offset);
+struct{
+    uint64 unkn[180]<format=hex>;
+}unknStruct5<bgcolor=0x8800aa>;
+
+FSeek(unknStruct3.unkn[0].unknOffset3);
+struct{
+    local uint32 i;
+    for(i=0;i<head.unknStruct3Count;i++){
+        if(unknStruct3.unkn[i].unknOffset3!=0){
+            FSeek(unknStruct3.unkn[i].unknOffset3);
+            struct{
+                uint64 unkn1;
+            }unkn<bgcolor=0xaa00aa>;
+        }
+    }
+}unknStruct3_<optimize=false>;
+
+FSeek(unknStruct4.unkn[0].unknOffset4);
+struct{
+    local uint32 i;
+    for(i=0;i<head.unknStruct4Count;i++){
+        if(unknStruct4.unkn[i].unknOffset4!=0){
+            FSeek(unknStruct4.unkn[i].unknOffset4);
+            struct{
+                uint64 unkn1<format=hex>;
+            }unkn<bgcolor=0xcc00aa>;
+        }
+    }
+}unknStruct4_<optimize=false>;
