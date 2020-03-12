@@ -10,6 +10,8 @@ from pathlib import Path
 def removeWhitespace(string):
     return ' '.join(string.split())
 
+htm = open("ListBindingNames.ryo","w")
+print = htm.write
 nameSet = set()
 nameList = []
 
@@ -31,3 +33,4 @@ for filePath in Path(r"E:\MHW Shader Research\MHW-Research\shdr").rglob("*.src")
                     nameSet.add(bname)
                     nameList.append(bname)
 print(','.join(nameList))
+htm.close()
