@@ -1,0 +1,14 @@
+//------------------------------------------------
+//--- 010 Editor v9.0 Script File
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+//   History: 
+//------------------------------------------------
+int i;
+for(i = 0; i<head.materialCount; i++){
+    material.material[i].unkn5[3]=0;
+}

@@ -2,6 +2,9 @@
 import os
 import re
 
+sg = open("mhwib_structures_generated.bt","w")
+print = sg.write
+
 print("#define row_major\n")
 print("""typedef struct float4{
     float a[4];
@@ -47,7 +50,7 @@ typedef struct bool3{
 };
 typedef uint bool;""")
 
-rootPath = r"\src"
+rootPath = r"..\shdr\src"
 classFiles = {}
 for root, dirs, files in os.walk(rootPath):
     for filename in files:
@@ -57,12 +60,12 @@ for root, dirs, files in os.walk(rootPath):
             for n in result:
                 classFiles[n] = filename
 
-for key,filename in classFiles.iteritems():
+for key,filename in classFiles.items():
     print("struct %s;" % key);
 print("")
 print("""void createClassByHash(uint i){
     """)
-for key,filename in classFiles.iteritems():
+for key,filename in classFiles.items():
     print("""   if(i == (crc%s & 0xFFFFF)){
                     %s data%s<bgcolor=0x00ffaa,optimize=false>;
                     return;
@@ -70,12 +73,12 @@ for key,filename in classFiles.iteritems():
 
 print("}")
 print("")
-for key,filename in classFiles.iteritems():
+for key,filename in classFiles.items():
     print("local int crc%s<format=hex> = createJamcrc(\"%s\");" % (key,key));
 
 
 print("")
-for key,filename in classFiles.iteritems():
+for key,filename in classFiles.items():
     print("//%s : %s" % (key,filename))
     with open(os.path.join(rootPath,filename), 'r') as content_file:
         content = content_file.read()
@@ -104,8 +107,9 @@ for key,filename in classFiles.iteritems():
                     else:
                         pass
                         #print("// no offset")
-                    print line[3:]
+                    print (line[3:])
             else:
                 if line == "// cbuffer "+key:
                     print("struct %s {\n" % key)
                     start = True
+sg.close()
