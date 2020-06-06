@@ -451,7 +451,12 @@ struct VertexBufferIASkin8wt2UVColor(int i, int hasdata){
 struct UnknMeshStuff{
     uint count;
     struct UnknMeshStuffSubStruct{
-        float unkn[36];
+        //float unkn[36];
+        int groupID;
+        int CD[3];
+        hfloat unkn[6];
+        float unknf;
+        float unkn2[28];
     } unknMeshStuffSubStruct[count];
 };
 string readFace(Face &v){
