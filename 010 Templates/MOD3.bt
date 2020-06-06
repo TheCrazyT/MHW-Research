@@ -448,16 +448,18 @@ struct VertexBufferIASkin8wt2UVColor(int i, int hasdata){
 };
 
 
-struct UnknMeshStuff{
+struct Mod3MeshProperties {
     uint count;
-    struct UnknMeshStuffSubStruct{
-        //float unkn[36];
-        int groupID;
-        int CD[3];
-        hfloat unkn[6];
-        float unknf;
-        float unkn2[28];
-    } unknMeshStuffSubStruct[count];
+    struct Mod3MeshProperty{
+        int boneIndex;
+        ubyte spacer[12];
+        float center[3];
+        float radius;
+        float boxMin[4];
+		float boxMax[4];
+		float matrix[16];
+		float vector[4];
+    } mod3MeshProperty[count];
 };
 string readFace(Face &v){
     string s;
@@ -508,7 +510,7 @@ FSeek(head.meshOffset);
  local int BOFF = 0;
 if(head.version==237){
     MeshPartV3 meshPart[head.meshCount]<read=readMeshPart,bgcolor=0xff0000>;
-    UnknMeshStuff unknMeshStuff<bgcolor=0xaa0000>;
+    Mod3MeshProperties mod3MeshProperties<bgcolor=0xaa0000>;
     //float unknMeshStuff[2556]<bgcolor=0xaa0000>; //two010
     //float unknMeshStuff[216]<bgcolor=0xaa0000>;  //stm730_000_03
     local int i=0;
